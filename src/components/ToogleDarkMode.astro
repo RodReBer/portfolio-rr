@@ -1,0 +1,58 @@
+---
+import SunIcon from "../components/icons/Sun.astro";
+import MoonIcon from "../components/icons/Moon.astro";
+---
+
+<button
+  type="button"
+  class="bg-gray-200/70 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 dark:focus:ring-orange-600/70 focus:ring-violet-500/70 focus:ring-offset-2"
+  role="switch"
+  aria-checked="false"
+>
+  <span class="sr-only">Use setting</span>
+  <!-- Enabled: "translate-x-5", Not Enabled: "translate-x-0" -->
+  <span
+    class="translate-x-0 pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+  >
+    <!-- Enabled: "opacity-0 duration-100 ease-out", Not Enabled: "opacity-100 duration-200 ease-in" -->
+    <span
+      class="opacity-100 duration-200 ease-in absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+      aria-hidden="true"
+    >
+      <MoonIcon class="size-3 dark:text-orange-600/70 text-violet-500/70" />
+    </span>
+    <!-- Enabled: "opacity-100 duration-200 ease-in", Not Enabled: "opacity-0 duration-100 ease-out" -->
+    <span
+      class="opacity-0 duration-100 ease-out absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+      aria-hidden="true"
+    >
+      <SunIcon class="size-3 dark:text-orange-600/70 text-violet-500/70" />
+    </span>
+  </span>
+</button>
+<script>
+  let button = document.querySelector("button");
+  let spanTranslate = document.querySelector(".translate-x-0");
+  let spanOpacity100 = document.querySelector(".opacity-100");
+  let spanOpacity0 = document.querySelector(".opacity-0");
+
+  button.addEventListener("click", function () {
+    let html = document.documentElement;
+
+    if (button.getAttribute("aria-checked") === "false") {
+      button.setAttribute("aria-checked", "true");
+      button.classList.replace("bg-gray-200/70", "dark:bg-orange-600/70");
+      spanTranslate.classList.replace("translate-x-0", "translate-x-5");
+      spanOpacity100.classList.replace("opacity-100", "opacity-0");
+      spanOpacity0.classList.replace("opacity-0", "opacity-100");
+      html.classList.replace("light", "dark");
+    } else {
+      button.setAttribute("aria-checked", "false");
+      button.classList.replace("dark:bg-orange-600/70", "bg-gray-200/70");
+      spanTranslate.classList.replace("translate-x-5", "translate-x-0");
+      spanOpacity100.classList.replace("opacity-0", "opacity-100");
+      spanOpacity0.classList.replace("opacity-100", "opacity-0");
+      html.classList.replace("dark", "light");
+    }
+  });
+</script>
