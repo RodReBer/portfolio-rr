@@ -1,47 +1,47 @@
 /* empty css                          */
-import { e as createAstro, f as createComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute, i as renderComponent, j as renderHead, k as renderSlot, s as spreadAttributes } from '../astro_7hEmDlAW.mjs';
+import { e as createAstro, f as createComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute, i as renderComponent, s as spreadAttributes, j as renderHead, k as renderSlot } from '../astro_7hEmDlAW.mjs';
 import 'kleur/colors';
 import 'html-escaper';
 import 'clsx';
 
-const $$Astro$V = createAstro();
+const $$Astro$Y = createAstro();
 const $$Facebook = createComponent(async ($$result, $$props, $$slots) => {
-  const Astro2 = $$result.createAstro($$Astro$V, $$props, $$slots);
+  const Astro2 = $$result.createAstro($$Astro$Y, $$props, $$slots);
   Astro2.self = $$Facebook;
   return renderTemplate`${maybeRenderHead()}<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"> <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path> </svg>`;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/icons/Facebook.astro", void 0);
 
-const $$Astro$U = createAstro();
+const $$Astro$X = createAstro();
 const $$Instagram = createComponent(async ($$result, $$props, $$slots) => {
-  const Astro2 = $$result.createAstro($$Astro$U, $$props, $$slots);
+  const Astro2 = $$result.createAstro($$Astro$X, $$props, $$slots);
   Astro2.self = $$Instagram;
   return renderTemplate`${maybeRenderHead()}<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"> <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd"></path> </svg>`;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/icons/Instagram.astro", void 0);
 
-const $$Astro$T = createAstro();
+const $$Astro$W = createAstro();
 const $$Twitter = createComponent(async ($$result, $$props, $$slots) => {
-  const Astro2 = $$result.createAstro($$Astro$T, $$props, $$slots);
+  const Astro2 = $$result.createAstro($$Astro$W, $$props, $$slots);
   Astro2.self = $$Twitter;
   return renderTemplate`${maybeRenderHead()}<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"> <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path> </svg>`;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/icons/Twitter.astro", void 0);
 
-const $$Astro$S = createAstro();
+const $$Astro$V = createAstro();
 const $$GithubFooter = createComponent(async ($$result, $$props, $$slots) => {
-  const Astro2 = $$result.createAstro($$Astro$S, $$props, $$slots);
+  const Astro2 = $$result.createAstro($$Astro$V, $$props, $$slots);
   Astro2.self = $$GithubFooter;
   return renderTemplate`${maybeRenderHead()}<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"> <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path> </svg>`;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/icons/GithubFooter.astro", void 0);
 
-const $$Astro$R = createAstro();
+const $$Astro$U = createAstro();
 const $$YouTube = createComponent(async ($$result, $$props, $$slots) => {
-  const Astro2 = $$result.createAstro($$Astro$R, $$props, $$slots);
+  const Astro2 = $$result.createAstro($$Astro$U, $$props, $$slots);
   Astro2.self = $$YouTube;
   return renderTemplate`${maybeRenderHead()}<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"> <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd"></path> </svg>`;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/icons/YouTube.astro", void 0);
 
-const $$Astro$Q = createAstro();
+const $$Astro$T = createAstro();
 const $$Footer = createComponent(async ($$result, $$props, $$slots) => {
-  const Astro2 = $$result.createAstro($$Astro$Q, $$props, $$slots);
+  const Astro2 = $$result.createAstro($$Astro$T, $$props, $$slots);
   Astro2.self = $$Footer;
   const SECTIONS = [
     {
@@ -66,6 +66,27 @@ const $$Footer = createComponent(async ($$result, $$props, $$slots) => {
 </p> </div> </footer>`;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/Footer.astro", void 0);
 
+const $$Astro$S = createAstro();
+const $$Sun = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro$S, $$props, $$slots);
+  Astro2.self = $$Sun;
+  return renderTemplate`${maybeRenderHead()}<svg${spreadAttributes(Astro2.props)} xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-sun" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path></svg>`;
+}, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/icons/Sun.astro", void 0);
+
+const $$Astro$R = createAstro();
+const $$Moon = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro$R, $$props, $$slots);
+  Astro2.self = $$Moon;
+  return renderTemplate`${maybeRenderHead()}<svg${spreadAttributes(Astro2.props)} xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-moon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path></svg>`;
+}, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/icons/Moon.astro", void 0);
+
+const $$Astro$Q = createAstro();
+const $$ToogleDarkMode = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro$Q, $$props, $$slots);
+  Astro2.self = $$ToogleDarkMode;
+  return renderTemplate`${maybeRenderHead()}<button type="button" class="bg-gray-200/70 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 dark:focus:ring-orange-600/70 focus:ring-violet-500/70 focus:ring-offset-2" role="switch" aria-checked="false"> <span class="sr-only">Use setting</span> <!-- Enabled: "translate-x-5", Not Enabled: "translate-x-0" --> <span class="translate-x-0 pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"> <!-- Enabled: "opacity-0 duration-100 ease-out", Not Enabled: "opacity-100 duration-200 ease-in" --> <span class="opacity-100 duration-200 ease-in absolute inset-0 flex h-full w-full items-center justify-center transition-opacity" aria-hidden="true"> ${renderComponent($$result, "MoonIcon", $$Moon, { "class": "size-3 dark:text-orange-600/70 text-violet-500/70" })} </span> <!-- Enabled: "opacity-100 duration-200 ease-in", Not Enabled: "opacity-0 duration-100 ease-out" --> <span class="opacity-0 duration-100 ease-out absolute inset-0 flex h-full w-full items-center justify-center transition-opacity" aria-hidden="true"> ${renderComponent($$result, "SunIcon", $$Sun, { "class": "size-3 dark:text-orange-600/70 text-violet-500/70" })} </span> </span> </button> `;
+}, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/ToogleDarkMode.astro", void 0);
+
 const $$Astro$P = createAstro();
 const $$Header = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$P, $$props, $$slots);
@@ -77,6 +98,8 @@ const $$Header = createComponent(async ($$result, $$props, $$slots) => {
     fixed
     w-full
     z-10
+    flex-col
+    gap-2
   `, "class")}> <nav${addAttribute(`
       border-[0.2px] border-black rounded-lg
       px-2 py-1
@@ -87,7 +110,7 @@ const $$Header = createComponent(async ($$result, $$props, $$slots) => {
       
       transition
       duration-500
-    `, "class")}> <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#experience">Experience</a> <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#projects">Projects</a> <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#about-me">About me</a> <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#contact">Contact</a> </nav> <div id="menu-backdrop" class="absolute bg-black/25 dark:bg-white/25 backdrop-blur-xl rounded-lg left-[var(--left)] top-[var(--top)] w-[var(--width)] h-[var(--height)] transition-all duration-300 ease-in-out opacity-0 -z-10"></div> </header> `;
+    `, "class")}> <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#experience">Experience</a> <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#projects">Projects</a> <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#about-me">About me</a> <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#contact">Contact</a> </nav> ${renderComponent($$result, "ToogleDarkMode", $$ToogleDarkMode, {})} <div id="menu-backdrop" class="absolute bg-black/25 dark:bg-white/25 backdrop-blur-xl rounded-lg left-[var(--left)] top-[var(--top)] w-[var(--width)] h-[var(--height)] transition-all duration-300 ease-in-out opacity-0 -z-10"></div> </header> `;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/Header.astro", void 0);
 
 const $$Astro$O = createAstro();
@@ -95,7 +118,7 @@ const $$Layout = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$O, $$props, $$slots);
   Astro2.self = $$Layout;
   const { description, title } = Astro2.props;
-  return renderTemplate`<html lang="en"> <head><meta charset="UTF-8"><meta name="description"${addAttribute(description, "content")}><meta name="viewport" content="width=device-width"><meta name="generator"${addAttribute(Astro2.generator, "content")}><title>${title}</title>${renderHead()}</head> <body class="relative"> <div class="absolute top-0 bottom-0 z-[-2] min-h-screen w-full bg-neutral-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-30%,rgba(139,92,246,1),rgba(255,255,255,1))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,119,198,0.4),rgba(255,255,255,0))]"></div> <!-- rgba(83,116,255,0.25) --> <!-- rgba(59,119,198,0.3) --> ${renderComponent($$result, "Header", $$Header, {})} ${renderSlot($$result, $$slots["default"])} ${renderComponent($$result, "Footer", $$Footer, {})} </body></html>`;
+  return renderTemplate`<html lang="en" class="light"> <head><meta charset="UTF-8"><meta name="description"${addAttribute(description, "content")}><meta name="viewport" content="width=device-width"><meta name="generator"${addAttribute(Astro2.generator, "content")}><title>${title}</title>${renderHead()}</head> <body class="relative"> <div class="absolute top-0 bottom-0 z-[-2] min-h-screen w-full bg-neutral-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-30%,rgba(139,92,246,1),rgba(255,255,255,1))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,119,198,0.4),rgba(255,255,255,0))]"></div> <!-- rgba(83,116,255,0.25) --> <!-- rgba(59,119,198,0.3) --> ${renderComponent($$result, "Header", $$Header, {})} ${renderSlot($$result, $$slots["default"])} ${renderComponent($$result, "Footer", $$Footer, {})} </body></html>`;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/layouts/Layout.astro", void 0);
 
 const $$Astro$N = createAstro();
@@ -117,7 +140,7 @@ const $$Astro$L = createAstro();
 const $$SubTitle = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$L, $$props, $$slots);
   Astro2.self = $$SubTitle;
-  return renderTemplate`${maybeRenderHead()}<div class="w-full"> <h2 class="text-2xl font-semibold mb-6 mt-12 flex gap-x-3 items-center"> ${renderSlot($$result, $$slots["default"])} </h2> </div>`;
+  return renderTemplate`${maybeRenderHead()}<div class="w-full"> <h2 class="text-2xl font-semibold mb-6 mt-12 flex gap-x-3 items-center dark:text-white text-black"> ${renderSlot($$result, $$slots["default"])} </h2> </div>`;
 }, "C:/Users/Rodri pc/OneDrive/Escritorio/proyectos/portfolio-rr/src/components/SubTitle.astro", void 0);
 
 const $$Astro$K = createAstro();
@@ -790,7 +813,7 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$Index;
   return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": "Rodrigo Rey Portfolio - Web Developer and Programmer with 2 years of experience", "description": "Hire Rodrigo Rey to create your web application. Web developer specialized in creating unique applications" }, { "default": ($$result2) => renderTemplate` ${maybeRenderHead()}<main class="px-4"> ${renderComponent($$result2, "SectionContainer", $$SectionContainer, { "class": "pt-44 pb-24" }, { "default": ($$result3) => renderTemplate` <img class="rounded-full size-12 mb-4" src="https://media.licdn.com/dms/image/C4D03AQEMZTwzVlyJww/profile-displayphoto-shrink_200_200/0/1660098987661?e=2147483647&v=beta&t=FgtWNhLkVea8BcbehsI6WYnxy25WjlTW8XVKbZPNm4U" alt="Rodrigo Rey photo"> <h1 class="text-black dark:text-white text-3xl md:4xl lg:text-5xl font-bold flex flex-row gap-x-4 pb-6 lg:pb-10">
-Hi👋, I'm Rodrigo Rey <a href="https://www.linkedin.com/in/rodrigorey2005/" target="_blank" rel="noopener noreferrer" class="flex justify-center items-center"> ${renderComponent($$result3, "Badge", $$Badge, {}, { "default": ($$result4) => renderTemplate`Available for hire` })} </a> </h1> <h2 class="text-xl lg:text-2xl text-wrap max-w-[700px]"> <span class="">+2 years of experience</span>. <span class="text-yellow-300">Web and Software Developer</span>
+Hi👋, I'm Rodrigo Rey <a href="https://www.linkedin.com/in/rodrigorey2005/" target="_blank" rel="noopener noreferrer" class="flex justify-center items-center"> ${renderComponent($$result3, "Badge", $$Badge, {}, { "default": ($$result4) => renderTemplate`Available for hire` })} </a> </h1> <h2 class="text-xl lg:text-2xl text-wrap max-w-[700px] dark:text-white text-black"> <span class="">+2 years of experience</span>. <span class="text-yellow-300">Web and Software Developer</span>
 From<span class="text-yellow-300"> Montevideo, Uruguay</span>.
 <span class="opacity-75">Specialized in creating unique applications</span>.
 </h2> <nav class="flex gap-4 mt-8 flex-wrap"> ${renderComponent($$result3, "SocialPill", $$SocialPill, { "href": "https://www.linkedin.com/in/rodrigorey2005/" }, { "default": ($$result4) => renderTemplate` ${renderComponent($$result4, "LinkedInIcon", $$LinkedIn, { "class": "size-4 md:size-6" })}
