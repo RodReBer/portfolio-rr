@@ -1,0 +1,71 @@
+---
+import TailwindIcon from "../components/icons/Tailwind.astro";
+import ReactIcon from "../components/icons/React.astro";
+import FirebaseIcon from "../components/icons/FireBase.astro";
+import AstroIcon from "./icons/AstroIcon.astro";
+import ProjectItem from "./ProjectItem.astro";
+
+const TAGS = {
+  REACT: {
+    name: "React",
+    class: "bg-[#149eca]/10 text-black dark:text-white border-[#149eca]",
+    icon: ReactIcon,
+  },
+  FIREBASE: {
+    name: "FireBase",
+    class: "bg-[#ffcc2c]/10 text-black dark:text-white border-[#ffcc2c]",
+    icon: FirebaseIcon,
+  },
+  TAILWIND: {
+    name: "Tailwind",
+    class: "bg-[#68c7f0]/10 text-black dark:text-white border-[#68c7f0]",
+    icon: TailwindIcon,
+  },
+  ASTRO: {
+    name: "Astro",
+    class: "bg-[#ff5d01]/10 text-black dark:text-white border-[#ff5d01]",
+    icon: AstroIcon,
+  },
+};
+
+const PROJECTS = [
+  {
+    title: "Boost your conversion rate",
+    imageSrc:
+      "/projects/capdi-light.webp",
+    date: "2020-03-16",
+    textColor: "#3b82f6",
+    linkProject: "https://reinareyes.edu.uy",
+    tags: [TAGS.REACT, TAGS.FIREBASE, TAGS.TAILWIND, TAGS.ASTRO],
+    content:
+      "Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
+    authorImage:
+      "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+    authorName: "Clínica",
+    authorNameSec: "Capdi",
+  },
+  {
+    title: "Boost your conversion rate",
+    imageSrc:
+      "/projects/reina-reyes-light.webp",
+    date: "2020-03-16",
+    textColor: "#4f0f2a",
+    linkProject: "https://reinareyes.edu.uy",
+    tags: [TAGS.REACT, TAGS.FIREBASE, TAGS.TAILWIND],
+    content:
+      "Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
+    authorImage:
+      "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+    authorName: "Colegio y Liceo",
+    authorNameSec: "Reina Reyes",
+  },
+];
+---
+
+<div class="mx-auto max-w-7xl">
+  <div
+    class="mx-0 mt-16 grid  grid-cols-1 gap-x-8 gap-y-20  max-w-none lg:grid-cols-1"
+  >
+    {PROJECTS.map((card) => <ProjectItem {...card} />)}
+  </div>
+</div>

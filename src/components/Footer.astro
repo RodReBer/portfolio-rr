@@ -1,0 +1,89 @@
+---
+const SECTIONS = [
+  {
+    title: "Experience",
+    url: "#experience",
+  },
+  {
+    title: "Projects",
+    url: "#projects",
+  },
+  {
+    title: "About me",
+    url: "#about-me",
+  },
+  {
+    title: "Contact",
+    url: "#contact",
+  },
+];
+import FacebookIcon from "../components/icons/Facebook.astro";
+import InstagramIcon from "../components/icons/Instagram.astro";
+import TwitterIcon from "../components/icons/Twitter.astro";
+import GitHubIcon from "../components/icons/GithubFooter.astro";
+import YouTubeIcon from "../components/icons/YouTube.astro";
+---
+
+<footer>
+  <div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
+    <nav
+      class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12"
+      aria-label="Footer"
+    >
+      {
+        SECTIONS.map((sections) => (
+          <div class="pb-6">
+            <a
+              href={sections.url}
+              class="text-sm leading-6 text-black hover:text-black/80 dark:text-white dark:hover:text-gray-200"
+            >
+              {sections.title}
+            </a>
+          </div>
+        ))
+      }
+    </nav>
+    <div class="mt-10 flex justify-center space-x-10">
+      <a
+        href="#"
+        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
+      >
+        <span class="sr-only">Facebook</span>
+        <FacebookIcon />
+      </a>
+      <a
+        href="#"
+        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
+      >
+        <span class="sr-only">Instagram</span>
+        <InstagramIcon />
+      </a>
+      <a
+        href="#"
+        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
+      >
+        <span class="sr-only">Twitter</span>
+        <TwitterIcon />
+      </a>
+      <a
+        href="#"
+        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
+      >
+        <span class="sr-only">GitHub</span>
+        <GitHubIcon />
+      </a>
+      <a
+        href="#"
+        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
+      >
+        <span class="sr-only">YouTube</span>
+        <YouTubeIcon />
+      </a>
+    </div>
+    <p
+      class="mt-10 text-center text-xs leading-5 text-black dark:text-gray-300"
+    >
+      &copy; 2024 Rodrigo Rey, Inc. All rights reserved.
+    </p>
+  </div>
+</footer>

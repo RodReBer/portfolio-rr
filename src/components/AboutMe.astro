@@ -1,0 +1,356 @@
+---
+import TailwindIcon from "../components/icons/Tailwind.astro";
+import ReactIcon from "../components/icons/React.astro";
+import FirebaseIcon from "../components/icons/FireBase.astro";
+import AstroIcon from "./icons/AstroIcon.astro";
+import NextJsIcon from "./icons/NextJs.astro";
+import BootstrapIcon from "./icons/Bootstrap.astro";
+import ExpressIcon from "./icons/ExpressJs.astro";
+import HeadlessIcon from "./icons/HeadlessUi.astro";
+import ElectronIcon from "./icons/Electron.astro";
+import ReactRouterIcon from "./icons/ReactRouter.astro";
+import NodeJsIcon from "./icons/NodeJs.astro";
+import JwtIcon from "./icons/JWT.astro";
+import VisualCodeIcon from "./icons/VisualCode.astro";
+import AwsIcon from "./icons/AWS.astro";
+import CloudFlareIcon from "./icons/CloudFlare.astro";
+import GitIcon from "./icons/Git.astro";
+import GitLabIcon from "./icons/GitLab.astro";
+import GitHubIcon from "./icons/GitHub.astro";
+import NpmIcon from "./icons/Npm.astro";
+import PostManIcon from "./icons/Postman.astro";
+import LibraryIcon from "./icons/Library.astro";
+import FrameworkIcon from "./icons/Framework.astro";
+import MongoDbIcon from "./icons/MongoDb.astro";
+import MySqlIcon from "./icons/MySql.astro";
+import MicrosoftSqlIcon from "./icons/MicrosoftSql.astro";
+import SoftwareIcon from "./icons/Software.astro";
+import DatabaseIcon from "./icons/Database.astro";
+import RubyIcon from "./icons/Ruby.astro";
+import HtmlIcon from "./icons/Html.astro";
+import CssIcon from "./icons/Css.astro";
+import JavascriptIcon from "./icons/JavaScript.astro";
+import JavaIcon from "./icons/Java.astro";
+import HaskellIcon from "./icons/Haskell.astro";
+import SassIcon from "./icons/Sass.astro";
+
+const TAGS = {
+  REACT: {
+    name: "React",
+    class: "bg-[#149eca]/10 text-black dark:text-white border-[#149eca]",
+    icon: ReactIcon,
+  },
+  FIREBASE: {
+    name: "FireBase",
+    class: "bg-[#ffcc2c]/10 text-black dark:text-white border-[#ffcc2c]",
+    icon: FirebaseIcon,
+  },
+  TAILWIND: {
+    name: "Tailwind",
+    class: "bg-[#68c7f0]/10 text-black dark:text-white border-[#68c7f0]",
+    icon: TailwindIcon,
+  },
+  ASTRO: {
+    name: "Astro",
+    class: "bg-[#ff5d01]/10 text-black dark:text-white border-[#ff5d01]",
+    icon: AstroIcon,
+  },
+  NEXTJS: {
+    name: "NextJs",
+    class:
+      "bg-black/10 dark:bg-white/10 text-black dark:text-white border-black dark:border-white",
+    icon: NextJsIcon,
+  },
+  BOOTSTRAP: {
+    name: "Bootstrap",
+    class: "bg-[#7952b3]/10 text-black dark:text-white border-[#7952b3]",
+    icon: BootstrapIcon,
+  },
+  EXPRESS: {
+    name: "ExpressJs",
+    class:
+      "bg-black/40 dark:bg-white/10 text-white dark:text-white border-black dark:border-white",
+    icon: ExpressIcon,
+  },
+  HEADLESS: {
+    name: "Headless",
+    class: "bg-[#66d7fd]/10 text-black dark:text-white border-[#66d7fd] ",
+    icon: HeadlessIcon,
+  },
+  ELECTRON: {
+    name: "Electron",
+    class: "bg-[#323540]/10 text-black dark:text-white border-[#323540]",
+    icon: ElectronIcon,
+  },
+  REACTROUTER: {
+    name: "ReactRouter",
+    class: "bg-[#f54856]/10 text-black dark:text-white border-[#f54856]",
+    icon: ReactRouterIcon,
+  },
+  NODEJS: {
+    name: "NodeJs",
+    class: "bg-[#66cc33]/10 text-black dark:text-white border-[#66cc33]",
+    icon: NodeJsIcon,
+  },
+  JWT: {
+    name: "JWT",
+    class: "bg-[#d83fff]/10 text-black dark:text-white border-[#d83fff]",
+    icon: JwtIcon,
+  },
+  VISUALCODE: {
+    name: "VisualCode",
+    class: "bg-[#2aaaf2]/10 text-black dark:text-white border-[#2aaaf2]",
+    icon: VisualCodeIcon,
+  },
+  AWS: {
+    name: "AWS",
+    class: "bg-[#ff9c08]/10 text-black dark:text-white border-[#ff9c08]",
+    icon: AwsIcon,
+  },
+  CLOUDFLARE: {
+    name: "CloudFlare",
+    class: "bg-[#f6821f]/10 text-black dark:text-white border-[#f6821f]",
+    icon: CloudFlareIcon,
+  },
+  GIT: {
+    name: "Git",
+    class: "bg-[#f44d27]/10 text-black dark:text-white border-[#f44d27]",
+    icon: GitIcon,
+  },
+  GITLAB: {
+    name: "GitLab",
+    class: "bg-[#fca62d]/10 text-black dark:text-white border-[#fca62d]",
+    icon: GitLabIcon,
+  },
+  GITHUB: {
+    name: "GitHub",
+    class:
+      "bg-black/10 text-black dark:text-white border-black dark:border-white dark:bg-white/10",
+    icon: GitHubIcon,
+  },
+  NPM: {
+    name: "NPM",
+    class: "bg-[#cd3e3d]/10 text-black dark:text-white border-[#cd3e3d]",
+    icon: NpmIcon,
+  },
+  POSTMAN: {
+    name: "PostMan",
+    class: "bg-[#ff6c37]/10 text-black dark:text-white border-[#ff6c37]",
+    icon: PostManIcon,
+  },
+  MONGODB: {
+    name: "MongoDb",
+    class: "bg-[#4db33d]/10 text-black dark:text-white border-[#4db33d]",
+    icon: MongoDbIcon,
+  },
+  MYSQL: {
+    name: "MySql",
+    class: "bg-[#00758f]/10 text-black dark:text-white border-[#00758f]",
+    icon: MySqlIcon,
+  },
+  MICROSOFTSQL: {
+    name: "MicrosoftSql",
+    class: "bg-[#e74c3c]/10 text-black dark:text-white border-[#e74c3c]",
+    icon: MicrosoftSqlIcon,
+  },
+  RUBY: {
+    name: "Ruby",
+    class: "bg-[#cc342d]/10 text-black dark:text-white border-[#cc342d]",
+    icon: RubyIcon,
+  },
+  HTML: {
+    name: "Html",
+    class: "bg-[#e34c26]/10 text-black dark:text-white border-[#e34c26]",
+    icon: HtmlIcon,
+  },
+  CSS: {
+    name: "Css",
+    class: "bg-[#264de4]/10 text-black dark:text-white border-[#264de4]",
+    icon: CssIcon,
+  },
+  JAVASCRIPT: {
+    name: "JavaScript",
+    class: "bg-[#f0db4f]/10 text-black dark:text-white border-[#f0db4f]",
+    icon: JavascriptIcon,
+  },
+  JAVA: {
+    name: "Java",
+    class: "bg-[#007396]/10 text-black dark:text-white border-[#007396]",
+    icon: JavaIcon,
+  },
+  HASKELL: {
+    name: "Haskell",
+    class: "bg-[#5e5086]/10 text-black dark:text-white border-[#5e5086]",
+    icon: HaskellIcon,
+  },
+  SASS: {
+    name: "Sass",
+    class: "bg-[#cc6699]/10 text-black dark:text-white border-[#cc6699]",
+    icon: SassIcon,
+  },
+};
+
+const SKILLS = [
+  {
+    name: "Database",
+    icon: DatabaseIcon,
+    tags: [TAGS.MONGODB, TAGS.MYSQL, TAGS.MICROSOFTSQL, TAGS.FIREBASE],
+  },
+  {
+    name: "Software",
+    icon: SoftwareIcon,
+    tags: [
+      TAGS.VISUALCODE,
+      TAGS.AWS,
+      TAGS.CLOUDFLARE,
+      TAGS.GIT,
+      TAGS.GITLAB,
+      TAGS.GITHUB,
+      TAGS.NPM,
+      TAGS.POSTMAN,
+    ],
+  },
+  {
+    name: "Framework",
+    icon: FrameworkIcon,
+    tags: [
+      TAGS.BOOTSTRAP,
+      TAGS.EXPRESS,
+      TAGS.ASTRO,
+      TAGS.NEXTJS,
+      TAGS.TAILWIND,
+    ],
+  },
+  {
+    name: "Library",
+    icon: LibraryIcon,
+    tags: [
+      TAGS.REACT,
+      TAGS.HEADLESS,
+      TAGS.ELECTRON,
+      TAGS.REACTROUTER,
+      TAGS.NODEJS,
+      TAGS.JWT,
+    ],
+  },
+  {
+    name: "Languages",
+    icon: LibraryIcon,
+    tags: [
+      TAGS.RUBY,
+      TAGS.HTML,
+      TAGS.CSS,
+      TAGS.JAVASCRIPT,
+      TAGS.JAVA,
+      TAGS.HASKELL,
+      TAGS.SASS,
+    ],
+  },
+];
+---
+
+<div
+  class="relative isolate overflow-hidden bg-black/10 dark:bg-white/5 rounded-2xl shadow-2xl shadow-black/50 dark:shadow-2xl dark:shadow-white/5 px-6 pb-24 sm:pb-32 pt-10 lg:overflow-visible lg:px-0"
+>
+  <div
+    class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-y-10"
+  >
+    <div
+      class="lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:mx-auto lg:grid lg:w-full lg:max-w-7xl lg:grid-cols-2 lg:gap-x-8 lg:px-8"
+    >
+      <div class="lg:pr-4">
+        <div class="lg:max-w-lg">
+          <p class="text-base font-semibold leading-7 text-violet-500 dark:text-orange-400/20">
+            A little of me...
+          </p>
+          <h1
+            class="mt-2 text-3xl font-bold tracking-tight dark:text-orange-400 text-gray-900 sm:text-4xl"
+          >
+            Rodrigo Rey
+          </h1>
+          <p class="mt-6 text-xl leading-8 text-gray-700 dark:text-white">
+            Aliquet nec orci mattis amet quisque ullamcorper neque, nibh sem. At
+            arcu, sit dui mi, nibh dui, diam eget aliquam. Quisque id at vitae
+            feugiat egestas.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="-ml-12 -mt-12 p-12 lg:sticky lg:top-7 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:overflow-hidden"
+    >
+      <img
+        class="w-[48rem] max-w-none rounded-xl bg-gray-900 shadow-xl ring-1 ring-gray-400/10 sm:w-[57rem]"
+        src="/about-me.webp"
+        alt=""
+      />
+    </div>
+    <div
+      class="lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:mx-auto lg:grid lg:w-full lg:max-w-7xl lg:grid-cols-2 lg:gap-x-8 lg:px-8"
+    >
+      <div class="lg:pr-4">
+        <div
+          class="max-w-xl text-base leading-7 text-gray-700 dark:text-white lg:max-w-lg"
+        >
+          <p>
+            Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus
+            enim. Mattis mauris semper sed amet vitae sed turpis id. Id dolor
+            praesent donec est. Odio penatibus risus viverra tellus varius sit
+            neque erat velit. Faucibus commodo massa rhoncus, volutpat.
+            Dignissim sed eget risus enim. Mattis mauris semper sed amet vitae
+            sed turpis id.
+          </p>
+          <ul
+            role="list"
+            class="mt-8 space-y-8 text-gray-600 dark:text-white/50"
+          >
+            {
+              SKILLS.map((skill) => (
+                <li class="mt-8 flex gap-3 text-xs flex-row">
+                  <div>
+                    <skill.icon class="size-7 dark:text-orange-400 text-black" />
+                  </div>
+                  <span class=" flex flex-col gap-y-2 mt-1 ">
+                    <strong class="font-semibold text-gray-900 dark:text-white ">
+                      {skill.name}
+                    </strong>
+                    <div class="flex gap-3 flex-row flex-wrap z-0">
+                      {skill.tags.map((tag) => (
+                        <div
+                          class={`flex gap-x-2 -z-10 rounded-full border  px-2 py-1 font-xs flex-wrap ${tag.class}`}
+                        >
+                          {tag.icon && <tag.icon class="size-4" />}
+
+                          {tag.name}
+                        </div>
+                      ))}
+                    </div>
+                  </span>
+                </li>
+              ))
+            }
+
+            <p class="mt-8">
+              Et vitae blandit facilisi magna lacus commodo. Vitae sapien duis
+              odio id et. Id blandit molestie auctor fermentum dignissim. Lacus
+              diam tincidunt ac cursus in vel. Mauris varius vulputate et
+              ultrices hac adipiscing egestas. Iaculis convallis ac tempor et
+              ut. Ac lorem vel integer orci.
+            </p>
+            <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+              No server? No problem.
+            </h2>
+            <p class="mt-6">
+              Id orci tellus laoreet id ac. Dolor, aenean leo, ac etiam
+              consequat in. Convallis arcu ipsum urna nibh. Pharetra, euismod
+              vitae interdum mauris enim, consequat vulputate nibh. Maecenas
+              pellentesque id sed tellus mauris, ultrices mauris. Tincidunt enim
+              cursus ridiculus mi. Pellentesque nam sed nullam sed diam turpis
+              ipsum eu a sed convallis diam.
+            </p>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

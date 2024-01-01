@@ -1,0 +1,57 @@
+<header
+  id="landing-header"
+  class={`
+    flex justify-center items-center
+    mx-auto
+    py-5
+    fixed
+    w-full
+    z-10
+  `}
+>
+  <nav
+    class={`
+      border-[0.2px] border-black rounded-lg
+      px-2 py-1
+      flex flex-row
+      bg-black/5 
+      dark:bg-white/30
+      backdrop-blur-[20px]
+      
+      transition
+      duration-500
+    `}
+  >
+    <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#experience">Experience</a>
+    <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#projects">Projects</a>
+    <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#about-me">About me</a>
+    <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#contact">Contact</a>
+  </nav>
+
+  <div
+    id="menu-backdrop"
+    class="absolute bg-black/25 dark:bg-white/25 backdrop-blur-xl rounded-lg left-[var(--left)] top-[var(--top)] w-[var(--width)] h-[var(--height)] transition-all duration-300 ease-in-out opacity-0 -z-10"
+  >
+  </div>
+</header>
+
+<script>
+  const listItem = document.querySelectorAll("#landing-header a");
+  const menuBackDrop = document.querySelector("#menu-backdrop") as HTMLElement;
+
+  listItem.forEach((item) => {
+    item.addEventListener("mouseenter", () => {
+      const { left, top, width, height } = item.getBoundingClientRect();
+      menuBackDrop.style.setProperty("--left", `${left}px`);
+      menuBackDrop.style.setProperty("--top", `${top}px`);
+      menuBackDrop.style.setProperty("--width", `${width}px`);
+      menuBackDrop.style.setProperty("--height", `${height}px`);
+      menuBackDrop.style.opacity = "1";
+      menuBackDrop.style.visibility = "visible";
+    });
+    item.addEventListener("mouseleave", () => {
+      menuBackDrop.style.opacity = "0";
+      menuBackDrop.style.visibility = "hidden";
+    });
+  });
+</script>
