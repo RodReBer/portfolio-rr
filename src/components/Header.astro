@@ -1,5 +1,5 @@
 ---
-import ToogleDarkMode from "./ToogleDarkMode.astro";
+import ToogleDarkMode from "../components/ToogleDarkMode.astro";
 ---
 
 <header
@@ -12,6 +12,7 @@ import ToogleDarkMode from "./ToogleDarkMode.astro";
     w-full
     z-10
     flex-col
+    md:flex-row
     gap-2
   `}
 >
@@ -28,10 +29,22 @@ import ToogleDarkMode from "./ToogleDarkMode.astro";
       duration-500
     `}
   >
-    <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#experience">Experience</a>
-    <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#projects">Projects</a>
-    <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#about-me">About me</a>
-    <a class="rounded-lg px-3 transition text-black dark:text-white mix-blend-exclusion" href="#contact">Contact</a>
+    <a
+      class="rounded-lg text-base px-3 transition text-black dark:text-white mix-blend-exclusion"
+      href="#experience">Experience</a
+    >
+    <a
+      class="rounded-lg text-base px-3 transition text-black dark:text-white mix-blend-exclusion"
+      href="#projects">Projects</a
+    >
+    <a
+      class="rounded-lg text-base px-3 transition text-black dark:text-white mix-blend-exclusion"
+      href="#about-me">About me</a
+    >
+    <a
+      class="rounded-lg text-base px-3 transition text-black dark:text-white mix-blend-exclusion"
+      href="#contact">Contact</a
+    >
   </nav>
   <ToogleDarkMode />
 
