@@ -1,9 +1,9 @@
 import * as adapter from '@astrojs/netlify/ssr-function.js';
 import { renderers } from './renderers.mjs';
-import { manifest } from './manifest_D0BoQD-B.mjs';
+import { manifest } from './manifest_s1PhTK_S.mjs';
 
 const _page0  = () => import('./chunks/generic_VB_1J_8o.mjs');
-const _page1  = () => import('./chunks/index_3cHa2R3e.mjs');const pageMap = new Map([["node_modules/astro/dist/assets/endpoint/generic.js", _page0],["src/pages/index.astro", _page1]]);
+const _page1  = () => import('./chunks/index_4P93AoiV.mjs');const pageMap = new Map([["node_modules/astro/dist/assets/endpoint/generic.js", _page0],["src/pages/index.astro", _page1]]);
 const _manifest = Object.assign(manifest, {
 	pageMap,
 	renderers,
