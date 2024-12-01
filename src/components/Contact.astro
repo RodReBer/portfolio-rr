@@ -1,51 +1,102 @@
 ---
-const errors = { Name: "", Email: "", Subject: "", Message: "" };
+import { isValidEmail } from "../services/contactValidate";
+import { Resend } from "resend";
+
+const resend = new Resend("re_2JpipiU3_6LhNFKyjj5XsDeRDGzw2im1e");
+
+const errors = { Name: "", Email: "", Subject: "", Message: "", general: "" };
+let formData = { Name: "", Email: "", Subject: "", Message: "" };
+let successMessage = "";
 
 if (Astro.request.method === "POST") {
+  // Clear all previous errors
+  Object.keys(errors).forEach(key => errors[key] = "");
+
   try {
     const data = await Astro.request.formData();
-    const Name = data.get("Name");
-    const Email = data.get("Email");
-    const Subject = data.get("Subject");
-    const Message = data.get("Message");
+    formData = {
+      Name: data.get("Name")?.toString().trim() ?? "",
+      Email: data.get("Email")?.toString().trim() ?? "",
+      Subject: data.get("Subject")?.toString().trim() ?? "",
+      Message: data.get("Message")?.toString().trim() ?? "",
+    };
 
     // Validaciones
-    if (typeof Name !== "string" || Name.trim().length < 1) {
+    if (formData.Name.length < 1) {
       errors.Name = "Please enter your name.";
     }
-    if (typeof Email !== "string" || !isValidEmail(Email)) {
+    if (!isValidEmail(formData.Email)) {
       errors.Email = "Please provide a valid email address.";
     }
-    if (typeof Subject !== "string" || Subject.trim().length < 1) {
+    if (formData.Subject.length < 1) {
       errors.Subject = "Please enter a subject.";
     }
-    if (typeof Message !== "string" || Message.trim().length < 1) {
+    if (formData.Message.length < 1) {
       errors.Message = "Your message cannot be empty.";
     }
 
     const hasErrors = Object.values(errors).some((msg) => msg);
 
     if (!hasErrors) {
-      console.log("Form submitted successfully:", { Name, Email, Subject, Message });
-      return Astro.redirect("/thank-you");
+      // Send email using Resend
+      try {
+        await resend.emails.send({
+          from: "onboarding@resend.dev",
+          to: "rodrigorey2005@gmail.com",
+          subject: `New Contact Form Submission: ${formData.Subject}`,
+          html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>New Contact Form Submission</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
+        <h1 style="color: #444; border-bottom: 2px solid #ddd; padding-bottom: 10px;">New Contact Form Submission</h1>
+        <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <p style="margin-bottom: 10px;"><strong style="color: #666;">Name:</strong> ${formData.Name}</p>
+          <p style="margin-bottom: 10px;"><strong style="color: #666;">Email:</strong> ${formData.Email}</p>
+          <p style="margin-bottom: 10px;"><strong style="color: #666;">Subject:</strong> ${formData.Subject}</p>
+          <p style="margin-bottom: 10px;"><strong style="color: #666;">Message:</strong></p>
+          <p style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #ddd; margin-top: 5px;">${formData.Message}</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
+        });
+
+        console.log("Form submitted successfully and email sent:", formData);
+        successMessage = "Your message has been sent successfully!";
+        // Clear form data after successful submission
+        formData = { Name: "", Email: "", Subject: "", Message: "" };
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+        errors.general = "An error occurred while sending your message. Please try again later.";
+      }
     }
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
+    errors.general = "An unexpected error occurred. Please try again.";
   }
-}
-
-function isValidEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
 }
 ---
 
-<form class="max-w-md mx-auto" name="form" data-netlify="true" method="POST">
+<form class="max-w-md mx-auto" name="form" method="POST">
+  {successMessage && (
+    <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
+      {successMessage}
+    </div>
+  )}
+
   <div class="relative z-0 w-full mb-5 group">
     <input
       type="text"
       name="Name"
       id="Name"
+      value={formData.Name}
       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer"
       placeholder=" "
       required
@@ -56,7 +107,7 @@ function isValidEmail(email) {
     >
       Name
     </label>
-    {errors.Name && <p class="text-red-500 text-sm mt-1">{errors.Name}</p>}
+    {errors.Name && <p class="text-red-500 text-xs mt-1">{errors.Name}</p>}
   </div>
 
   <div class="relative z-0 w-full mb-5 group">
@@ -64,6 +115,7 @@ function isValidEmail(email) {
       type="email"
       name="Email"
       id="Email"
+      value={formData.Email}
       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer"
       placeholder=" "
       required
@@ -74,7 +126,7 @@ function isValidEmail(email) {
     >
       Email
     </label>
-    {errors.Email && <p class="text-red-500 text-sm mt-1">{errors.Email}</p>}
+    {errors.Email && <p class="text-red-500 text-xs mt-1">{errors.Email}</p>}
   </div>
 
   <div class="relative z-0 w-full mb-5 group">
@@ -82,6 +134,7 @@ function isValidEmail(email) {
       type="text"
       name="Subject"
       id="Subject"
+      value={formData.Subject}
       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer"
       placeholder=" "
       required
@@ -92,7 +145,7 @@ function isValidEmail(email) {
     >
       Your subject
     </label>
-    {errors.Subject && <p class="text-red-500 text-sm mt-1">{errors.Subject}</p>}
+    {errors.Subject && <p class="text-red-500 text-xs mt-1">{errors.Subject}</p>}
   </div>
 
   <div class="relative z-0 w-full mb-5 group">
@@ -102,14 +155,14 @@ function isValidEmail(email) {
       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer min-h-20"
       placeholder=" "
       required
-    ></textarea>
+    >{formData.Message}</textarea>
     <label
       for="Message"
       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:left-auto peer-focus:text-violet-600 peer-focus:dark:text-orange-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
     >
       Your message
     </label>
-    {errors.Message && <p class="text-red-500 text-sm mt-1">{errors.Message}</p>}
+    {errors.Message && <p class="text-red-500 text-xs mt-1">{errors.Message}</p>}
   </div>
 
   <button
@@ -118,4 +171,6 @@ function isValidEmail(email) {
   >
     Send message
   </button>
+
+  {errors.general && <p class="text-red-500 text-sm mt-4">{errors.general}</p>}
 </form>
