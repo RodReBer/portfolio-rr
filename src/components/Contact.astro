@@ -40,6 +40,7 @@ if (Astro.request.method === "POST") {
     if (!hasErrors) {
       // Send email using Resend
       try {
+        // Send email to admin
         await resend.emails.send({
           from: "onboarding@resend.dev",
           to: "rodrigorey2005@gmail.com",
@@ -68,8 +69,36 @@ if (Astro.request.method === "POST") {
   `,
         });
 
-        console.log("Form submitted successfully and email sent:", formData);
-        successMessage = "Your message has been sent successfully!";
+        // Send thank you email to user
+        await resend.emails.send({
+          from: "onboarding@resend.dev",
+          to: formData.Email,
+          subject: "Thank you for your message",
+          html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Thank You for Your Message</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
+        <h1 style="color: #444; border-bottom: 2px solid #ddd; padding-bottom: 10px;">Thank You for Your Message</h1>
+        <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <p>Dear ${formData.Name},</p>
+          <p>Thank you for reaching out to us. We have received your message and appreciate your interest.</p>
+          <p>We will review your inquiry and get back to you shortly.</p>
+          <p>Best regards,<br>Your Team</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
+        });
+
+        console.log("Form submitted successfully and emails sent:", formData);
+        successMessage = "Your message has been sent successfully! Please check your email for a confirmation.";
         // Clear form data after successful submission
         formData = { Name: "", Email: "", Subject: "", Message: "" };
       } catch (emailError) {
@@ -174,3 +203,4 @@ if (Astro.request.method === "POST") {
 
   {errors.general && <p class="text-red-500 text-sm mt-4">{errors.general}</p>}
 </form>
+
