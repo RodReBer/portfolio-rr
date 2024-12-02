@@ -8,7 +8,6 @@ interface Props {
   description: string;
 }
 
-
 const { description, title } = Astro.props;
 ---
 
@@ -16,6 +15,8 @@ const { description, title } = Astro.props;
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/rr-blanca.png" />
+    <link rel="icon" type="image/svg+xml" href="/rr-blanca.png" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
@@ -55,5 +56,4 @@ const { description, title } = Astro.props;
       scroll-behavior: auto;
     }
   }
-
 </style>
