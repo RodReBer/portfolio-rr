@@ -10,7 +10,7 @@ let successMessage = "";
 
 if (Astro.request.method === "POST") {
   // Clear all previous errors
-  Object.keys(errors).forEach(key => errors[key] = "");
+  Object.keys(errors).forEach((key) => (errors[key] = ""));
 
   try {
     const data = await Astro.request.formData();
@@ -89,7 +89,7 @@ if (Astro.request.method === "POST") {
           <p>Dear ${formData.Name},</p>
           <p>Thank you for reaching out to us. We have received your message and appreciate your interest.</p>
           <p>We will review your inquiry and get back to you shortly.</p>
-          <p>Best regards,<br>Your Team</p>
+          <p>Best regards,<br>Your team ;)</p>
         </div>
       </div>
     </body>
@@ -98,12 +98,14 @@ if (Astro.request.method === "POST") {
         });
 
         console.log("Form submitted successfully and emails sent:", formData);
-        successMessage = "Your message has been sent successfully! Please check your email for a confirmation.";
+        successMessage =
+          "Your message has been sent successfully! Please check your email for a confirmation.";
         // Clear form data after successful submission
         formData = { Name: "", Email: "", Subject: "", Message: "" };
       } catch (emailError) {
         console.error("Error sending email:", emailError);
-        errors.general = "An error occurred while sending your message. Please try again later.";
+        errors.general =
+          "An error occurred while sending your message. Please try again later.";
       }
     }
   } catch (error) {
@@ -114,11 +116,13 @@ if (Astro.request.method === "POST") {
 ---
 
 <form class="max-w-md mx-auto" name="form" method="POST">
-  {successMessage && (
-    <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
-      {successMessage}
-    </div>
-  )}
+  {
+    successMessage && (
+      <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
+        {successMessage}
+      </div>
+    )
+  }
 
   <div class="relative z-0 w-full mb-5 group">
     <input
@@ -174,7 +178,11 @@ if (Astro.request.method === "POST") {
     >
       Your subject
     </label>
-    {errors.Subject && <p class="text-red-500 text-xs mt-1">{errors.Subject}</p>}
+    {
+      errors.Subject && (
+        <p class="text-red-500 text-xs mt-1">{errors.Subject}</p>
+      )
+    }
   </div>
 
   <div class="relative z-0 w-full mb-5 group">
@@ -183,15 +191,19 @@ if (Astro.request.method === "POST") {
       id="Message"
       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer min-h-20"
       placeholder=" "
-      required
-    >{formData.Message}</textarea>
+      required>{formData.Message}</textarea
+    >
     <label
       for="Message"
       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:left-auto peer-focus:text-violet-600 peer-focus:dark:text-orange-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
     >
       Your message
     </label>
-    {errors.Message && <p class="text-red-500 text-xs mt-1">{errors.Message}</p>}
+    {
+      errors.Message && (
+        <p class="text-red-500 text-xs mt-1">{errors.Message}</p>
+      )
+    }
   </div>
 
   <button
@@ -203,4 +215,3 @@ if (Astro.request.method === "POST") {
 
   {errors.general && <p class="text-red-500 text-sm mt-4">{errors.general}</p>}
 </form>
-
