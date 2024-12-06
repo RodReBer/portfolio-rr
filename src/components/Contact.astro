@@ -71,7 +71,7 @@ if (Astro.request.method === "POST") {
 
         // Send thank you email to user
         await resend.emails.send({
-          from: "rodrigorey2005@gmail.com",
+          from: "correo@rodrigorey.info",
           to: formData.Email,
           subject: "Thank you for your message",
           html: `
