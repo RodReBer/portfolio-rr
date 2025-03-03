@@ -24,7 +24,12 @@ if (Astro.request.method === "POST") {
     // Validaciones
     if (formData.Name.length < 1) {
       errors.Name = "Please enter your name.";
-    } else if (formData.Name.toLowerCase().includes("wic")) {
+    } else if (
+      formData.Name.toLowerCase().includes("wic") ||
+      formData.Name.toLowerCase().includes("myname") ||
+      formData.Name.toLowerCase().includes("testuser") ||
+      formData.Name.toLowerCase().includes("hello")
+    ) {
       errors.Name = "Invalid name.";
     }
     if (!isValidEmail(formData.Email)) {
