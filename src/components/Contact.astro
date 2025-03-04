@@ -28,7 +28,8 @@ if (Astro.request.method === "POST") {
       formData.Name.toLowerCase().includes("wic") ||
       formData.Name.toLowerCase().includes("myname") ||
       formData.Name.toLowerCase().includes("testuser") ||
-      formData.Name.toLowerCase().includes("hello")
+      formData.Name.toLowerCase().includes("hello") ||
+      formData.Name.toLowerCase().includes("alice")
     ) {
       errors.Name = "Invalid name.";
     }
