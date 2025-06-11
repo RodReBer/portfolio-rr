@@ -1,5 +1,4 @@
 ---
-// contact.astro (o donde esté tu backend del formulario)
 import { isValidEmail } from "../services/contactValidate";
 import { Resend } from "resend";
 
@@ -10,20 +9,10 @@ let formData = { Name: "", Email: "", Subject: "", Message: "" };
 let successMessage = "";
 
 if (Astro.request.method === "POST") {
-  // Clear all previous errors
   Object.keys(errors).forEach((key) => (errors[key] = ""));
 
   try {
     const data = await Astro.request.formData();
-
-    // Protección honeypot
-    const botField = data.get("bot-field");
-    if (botField && botField.toString().trim() !== "") {
-      console.warn("Bot detected. Submission blocked.");
-      errors.general = "Something went wrong. Please try again.";
-      throw new Error("Bot submission detected.");
-    }
-
     formData = {
       Name: data.get("Name")?.toString().trim() ?? "",
       Email: data.get("Email")?.toString().trim() ?? "",
@@ -31,16 +20,17 @@ if (Astro.request.method === "POST") {
       Message: data.get("Message")?.toString().trim() ?? "",
     };
 
-    // Validaciones humanas
+    // Validaciones
+    const nombre = formData.Name.toLowerCase();
     if (formData.Name.length < 1) {
       errors.Name = "Please enter your name.";
     } else if (
-      formData.Name.toLowerCase().includes("wic") ||
-      formData.Name.toLowerCase().includes("myname") ||
-      formData.Name.toLowerCase().includes("testuser") ||
-      formData.Name.toLowerCase().includes("hello") ||
-      formData.Name.toLowerCase().includes("alice") ||
-      formData.Name.toLowerCase().includes("john")
+      nombre.includes("wic") ||
+      nombre.includes("myname") ||
+      nombre.includes("testuser") ||
+      nombre.includes("hello") ||
+      nombre.includes("alice") ||
+      nombre.includes("john")
     ) {
       errors.Name = "Invalid name.";
     }
@@ -60,133 +50,76 @@ if (Astro.request.method === "POST") {
     const hasErrors = Object.values(errors).some((msg) => msg);
 
     if (!hasErrors) {
-      // Send email using Resend
-      try {
-        await resend.emails.send({
-          from: "onboarding@resend.dev",
-          to: "rodrigorey2005@gmail.com",
-          subject: `New Contact Form Submission: ${formData.Subject}`,
-          html: `
-            <h1>New Contact Form Submission</h1>
-            <p><strong>Name:</strong> ${formData.Name}</p>
-            <p><strong>Email:</strong> ${formData.Email}</p>
-            <p><strong>Subject:</strong> ${formData.Subject}</p>
-            <p><strong>Message:</strong><br/>${formData.Message}</p>
-          `,
-        });
+      // Enviar correo al admin
+      await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: "rodrigorey2005@gmail.com",
+        subject: `New Contact Form Submission: ${formData.Subject}`,
+        html: `
+          <h2>New Message from ${formData.Name}</h2>
+          <p><strong>Email:</strong> ${formData.Email}</p>
+          <p><strong>Subject:</strong> ${formData.Subject}</p>
+          <p><strong>Message:</strong><br>${formData.Message}</p>
+        `,
+      });
 
-        await resend.emails.send({
-          from: "correo@rodrigorey.info",
-          to: formData.Email,
-          subject: "Thank you for your message",
-          html: `
-            <h1>Thank You, ${formData.Name}</h1>
-            <p>We received your message and will get back to you shortly.</p>
-          `,
-        });
+      // Correo de agradecimiento
+      await resend.emails.send({
+        from: "correo@rodrigorey.info",
+        to: formData.Email,
+        subject: "Thank you for your message",
+        html: `
+          <h2>Thanks, ${formData.Name}!</h2>
+          <p>We got your message. We'll reply soon!</p>
+        `,
+      });
 
-        console.log("Form submitted successfully:", formData);
-        successMessage =
-          "Your message has been sent successfully! Please check your email for a confirmation.";
-        formData = { Name: "", Email: "", Subject: "", Message: "" };
-      } catch (emailError) {
-        console.error("Error sending email:", emailError);
-        errors.general =
-          "An error occurred while sending your message. Please try again later.";
-      }
+      successMessage = "Your message has been sent successfully! Please check your email.";
+      formData = { Name: "", Email: "", Subject: "", Message: "" };
     }
-  } catch (error) {
-    console.error(error instanceof Error ? error.message : error);
-    if (!errors.general)
-      errors.general = "An unexpected error occurred. Please try again.";
+  } catch (err) {
+    console.error(err);
+    errors.general = "An unexpected error occurred. Please try again.";
   }
 }
 ---
 
-<!-- Formulario con honeypot (campo oculto para bots) -->
-<form class="max-w-md mx-auto" name="form" method="POST">
+<form class="max-w-md mx-auto" method="POST">
   {successMessage && (
     <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
       {successMessage}
     </div>
   )}
 
-  <!-- Honeypot invisible (campo que solo llenan los bots) -->
-  <input type="text" name="bot-field" style="display: none;" tabindex="-1" autocomplete="off" />
+  {errors.general && (
+    <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+      {errors.general}
+    </div>
+  )}
 
-  <!-- Campo Name -->
-  <div class="relative z-0 w-full mb-5 group">
-    <input
-      type="text"
-      name="Name"
-      id="Name"
-      value={formData.Name}
-      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-violet-600 peer"
-      placeholder=" "
-      required
-    />
-    <label for="Name" class="peer-focus:font-medium absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
-      Name
-    </label>
-    {errors.Name && <p class="text-red-500 text-xs mt-1">{errors.Name}</p>}
+  <div class="mb-5">
+    <label for="Name" class="block mb-1">Name</label>
+    <input type="text" id="Name" name="Name" value={formData.Name} required class="w-full border px-3 py-2" />
+    {errors.Name && <p class="text-red-500 text-sm">{errors.Name}</p>}
   </div>
 
-  <!-- Campo Email -->
-  <div class="relative z-0 w-full mb-5 group">
-    <input
-      type="email"
-      name="Email"
-      id="Email"
-      value={formData.Email}
-      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-violet-600 peer"
-      placeholder=" "
-      required
-    />
-    <label for="Email" class="peer-focus:font-medium absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
-      Email
-    </label>
-    {errors.Email && <p class="text-red-500 text-xs mt-1">{errors.Email}</p>}
+  <div class="mb-5">
+    <label for="Email" class="block mb-1">Email</label>
+    <input type="email" id="Email" name="Email" value={formData.Email} required class="w-full border px-3 py-2" />
+    {errors.Email && <p class="text-red-500 text-sm">{errors.Email}</p>}
   </div>
 
-  <!-- Campo Subject -->
-  <div class="relative z-0 w-full mb-5 group">
-    <input
-      type="text"
-      name="Subject"
-      id="Subject"
-      value={formData.Subject}
-      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-violet-600 peer"
-      placeholder=" "
-      required
-    />
-    <label for="Subject" class="peer-focus:font-medium absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
-      Subject
-    </label>
-    {errors.Subject && <p class="text-red-500 text-xs mt-1">{errors.Subject}</p>}
+  <div class="mb-5">
+    <label for="Subject" class="block mb-1">Subject</label>
+    <input type="text" id="Subject" name="Subject" value={formData.Subject} required class="w-full border px-3 py-2" />
+    {errors.Subject && <p class="text-red-500 text-sm">{errors.Subject}</p>}
   </div>
 
-  <!-- Campo Message -->
-  <div class="relative z-0 w-full mb-5 group">
-    <textarea
-      name="Message"
-      id="Message"
-      value={formData.Message}
-      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-violet-600 peer"
-      placeholder=" "
-      required
-    ></textarea>
-    <label for="Message" class="peer-focus:font-medium absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
-      Message
-    </label>
-    {errors.Message && <p class="text-red-500 text-xs mt-1">{errors.Message}</p>}
+  <div class="mb-5">
+    <label for="Message" class="block mb-1">Message</label>
+    <textarea id="Message" name="Message" required class="w-full border px-3 py-2" rows="5">{formData.Message}</textarea>
+    {errors.Message && <p class="text-red-500 text-sm">{errors.Message}</p>}
   </div>
 
-  {errors.general && <p class="text-red-500 text-sm mb-4">{errors.general}</p>}
-
-  <button
-    type="submit"
-    class="bg-violet-600 text-white px-4 py-2 rounded hover:bg-violet-700 transition"
-  >
-    Send Message
-  </button>
+  <button type="submit" class="bg-violet-600 text-white px-4 py-2 rounded">Send</button>
 </form>
