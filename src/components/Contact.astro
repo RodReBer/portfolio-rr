@@ -14,6 +14,13 @@ if (Astro.request.method === "POST") {
 
   try {
     const data = await Astro.request.formData();
+
+    const honey = data.get("honey")?.toString().trim() ?? "";
+    if (honey.length > 0) {
+      errors.general = "Spam detected.";
+      return;
+    }
+    
     formData = {
       Name: data.get("Name")?.toString().trim() ?? "",
       Email: data.get("Email")?.toString().trim() ?? "",
@@ -121,12 +128,6 @@ if (Astro.request.method === "POST") {
     console.error(error instanceof Error ? error.message : error);
     errors.general = "An unexpected error occurred. Please try again.";
   }
-}
-const data = await Astro.request.formData();
-const honey = data.get("honey")?.toString().trim() ?? "";
-if (honey.length > 0) {
-  errors.general = "Spam detected.";
-  return;
 }
 ---
 
