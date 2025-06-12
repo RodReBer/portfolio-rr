@@ -4,23 +4,49 @@ import { Resend } from "resend";
 
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
+// Tiempo mínimo entre envíos (60 segundos)
+const MIN_SUBMISSION_INTERVAL = 60;
+
 const errors = { Name: "", Email: "", Subject: "", Message: "", general: "" };
 let formData = { Name: "", Email: "", Subject: "", Message: "" };
 let successMessage = "";
 
 if (Astro.request.method === "POST") {
-  // Clear all previous errors
+  // Limpia errores previos
   Object.keys(errors).forEach((key) => (errors[key] = ""));
 
   try {
     const data = await Astro.request.formData();
 
-    const honey = data.get("honey")?.toString().trim() ?? "";
+    // 1. Honeypot mejorado
+    const honey = data.get("website")?.toString().trim() ?? "";
     if (honey.length > 0) {
       errors.general = "Spam detected.";
       return;
     }
-    
+
+    // 2. Validación de timestamp
+    const timestamp = parseInt(data.get("timestamp")?.toString() ?? "0");
+    const currentTime = Date.now();
+    if (currentTime - timestamp < 3000) {
+      errors.general = "Form submission too fast.";
+      return;
+    }
+
+    // 3. Pregunta matemática simple
+    const mathAnswer = data.get("math_question")?.toString().trim() ?? "";
+    if (mathAnswer !== "8") {
+      errors.general = "Please answer the math question correctly.";
+      return;
+    }
+
+    // 4. Rate limiting
+    const lastSubmission = Astro.cookies.get("last_submission")?.value;
+    if (lastSubmission && currentTime - parseInt(lastSubmission) < MIN_SUBMISSION_INTERVAL * 1000) {
+      errors.general = `Please wait ${MIN_SUBMISSION_INTERVAL} seconds before submitting again.`;
+      return;
+    }
+
     formData = {
       Name: data.get("Name")?.toString().trim() ?? "",
       Email: data.get("Email")?.toString().trim() ?? "",
@@ -28,124 +54,151 @@ if (Astro.request.method === "POST") {
       Message: data.get("Message")?.toString().trim() ?? "",
     };
 
-    // Validaciones
-    if (formData.Name.length < 1) {
+    // Validaciones mejoradas
+    if (formData.Name.length < 2) {
       errors.Name = "Please enter your name.";
-    } else if (
-      formData.Name.toLowerCase().includes("wic") ||
-      formData.Name.toLowerCase().includes("myname") ||
-      formData.Name.toLowerCase().includes("testuser") ||
-      formData.Name.toLowerCase().includes("hello") ||
-      formData.Name.toLowerCase().includes("alice") ||
-      formData.Name.toLowerCase().includes("john")
-    ) {
+    } else if (/(spam|bot|test|fake|http|www|nigerian|viagra|casino)/i.test(formData.Name)) {
       errors.Name = "Invalid name.";
     }
+
     if (!isValidEmail(formData.Email)) {
       errors.Email = "Please provide a valid email address.";
+    } else if (/(noreply|no-reply|example|temp|fake|spam|@mailinator|@guerrillamail)/i.test(formData.Email)) {
+      errors.Email = "Invalid email address.";
     }
-    if (formData.Subject.length < 1) {
+
+    if (formData.Subject.length < 3) {
       errors.Subject = "Please enter a subject.";
+    } else if (/(free|win|prize|http|www|promo|casino|loan|money)/i.test(formData.Subject)) {
+      errors.Subject = "Invalid subject.";
     }
-    if (formData.Message.length < 1) {
-      errors.Message = "Your message cannot be empty.";
+
+    if (formData.Message.length < 10) {
+      errors.Message = "Your message is too short.";
+    } else if (formData.Message.length > 1000) {
+      errors.Message = "Your message is too long.";
+    } else if (/(http:|https:|www\.|\[url|\[link|click here|\.ru|\.cn|\.xyz)/i.test(formData.Message)) {
+      errors.Message = "Links are not allowed in messages.";
     }
 
     const hasErrors = Object.values(errors).some((msg) => msg);
 
     if (!hasErrors) {
-      // Send email using Resend
       try {
-        // Send email to admin
+        // Envío de email al admin
         await resend.emails.send({
           from: "onboarding@resend.dev",
           to: "rodrigorey2005@gmail.com",
           subject: `New Contact Form Submission: ${formData.Subject}`,
           html: `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>New Contact Form Submission</title>
-    </head>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
-        <h1 style="color: #444; border-bottom: 2px solid #ddd; padding-bottom: 10px;">New Contact Form Submission</h1>
-        <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-          <p style="margin-bottom: 10px;"><strong style="color: #666;">Name:</strong> ${formData.Name}</p>
-          <p style="margin-bottom: 10px;"><strong style="color: #666;">Email:</strong> ${formData.Email}</p>
-          <p style="margin-bottom: 10px;"><strong style="color: #666;">Subject:</strong> ${formData.Subject}</p>
-          <p style="margin-bottom: 10px;"><strong style="color: #666;">Message:</strong></p>
-          <p style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #ddd; margin-top: 5px;">${formData.Message}</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `,
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Contact Form Submission</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
+    <h1 style="color: #444; border-bottom: 2px solid #ddd; padding-bottom: 10px;">New Contact Form Submission</h1>
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+      <p style="margin-bottom: 10px;"><strong style="color: #666;">Name:</strong> ${formData.Name}</p>
+      <p style="margin-bottom: 10px;"><strong style="color: #666;">Email:</strong> ${formData.Email}</p>
+      <p style="margin-bottom: 10px;"><strong style="color: #666;">Subject:</strong> ${formData.Subject}</p>
+      <p style="margin-bottom: 10px;"><strong style="color: #666;">Message:</strong></p>
+      <p style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #ddd; margin-top: 5px;">${formData.Message}</p>
+    </div>
+  </div>
+</body>
+</html>
+          `
         });
 
-        // Send thank you email to user
+        // Email de confirmación al usuario
         await resend.emails.send({
           from: "correo@rodrigorey.info",
           to: formData.Email,
           subject: "Thank you for your message",
           html: `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Thank You for Your Message</title>
-    </head>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
-        <h1 style="color: #444; border-bottom: 2px solid #ddd; padding-bottom: 10px;">Thank You for Your Message</h1>
-        <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-          <p>Dear ${formData.Name},</p>
-          <p>Thank you for reaching out to us. We have received your message and appreciate your interest.</p>
-          <p>We will review your inquiry and get back to you shortly.</p>
-          <p>Best regards,<br>Your team ;)</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `,
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You for Your Message</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
+    <h1 style="color: #444; border-bottom: 2px solid #ddd; padding-bottom: 10px;">Thank You for Your Message</h1>
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+      <p>Dear ${formData.Name},</p>
+      <p>Thank you for reaching out to us. We have received your message and will respond shortly.</p>
+      <p>Best regards,<br>Your Team</p>
+    </div>
+  </div>
+</body>
+</html>
+          `
         });
 
-        console.log("Form submitted successfully and emails sent:", formData);
-        successMessage =
-          "Your message has been sent successfully! Please check your email for a confirmation.";
-        // Clear form data after successful submission
+        successMessage = "Your message has been sent successfully!";
         formData = { Name: "", Email: "", Subject: "", Message: "" };
+        
+        // Establece cookie de rate limiting
+        Astro.cookies.set("last_submission", currentTime.toString(), {
+          path: "/",
+          maxAge: MIN_SUBMISSION_INTERVAL,
+          httpOnly: true
+        });
+
       } catch (emailError) {
         console.error("Error sending email:", emailError);
-        errors.general =
-          "An error occurred while sending your message. Please try again later.";
+        errors.general = "An error occurred while sending your message.";
       }
     }
   } catch (error) {
-    console.error(error instanceof Error ? error.message : error);
-    errors.general = "An unexpected error occurred. Please try again.";
+    console.error("Form error:", error);
+    errors.general = "An unexpected error occurred.";
   }
 }
 ---
 
 <form class="max-w-md mx-auto" name="form" method="POST">
-  <input
-    type="text"
-    name="honey"
-    style="display: none;"
-    tabindex="-1"
+  <!-- Honeypot invisible -->
+  <input 
+    type="text" 
+    name="website" 
+    style="position: absolute; left: -9999px;" 
+    tabindex="-1" 
     autocomplete="off"
   />
-  {
-    successMessage && (
-      <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
-        {successMessage}
-      </div>
-    )
-  }
+  
+  <!-- Timestamp oculto -->
+  <input type="hidden" name="timestamp" value={new Date().getTime()} />
+
+  <!-- Pregunta matemática anti-bots -->
+  <div class="relative z-0 w-full mb-5 group">
+    <input
+      type="text"
+      name="math_question"
+      id="math_question"
+      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer"
+      placeholder=" "
+      required
+    />
+    <label
+      for="math_question"
+      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:left-auto peer-focus:text-violet-600 peer-focus:dark:text-orange-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+    >
+      What is 5 + 3?
+    </label>
+  </div>
+
+  {successMessage && (
+    <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
+      {successMessage}
+    </div>
+  )}
 
   <div class="relative z-0 w-full mb-5 group">
     <input
@@ -156,6 +209,7 @@ if (Astro.request.method === "POST") {
       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer"
       placeholder=" "
       required
+      minlength="2"
     />
     <label
       for="Name"
@@ -194,18 +248,15 @@ if (Astro.request.method === "POST") {
       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer"
       placeholder=" "
       required
+      minlength="3"
     />
     <label
       for="Subject"
       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:left-auto peer-focus:text-violet-600 peer-focus:dark:text-orange-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
     >
-      Your subject
+      Subject
     </label>
-    {
-      errors.Subject && (
-        <p class="text-red-500 text-xs mt-1">{errors.Subject}</p>
-      )
-    }
+    {errors.Subject && <p class="text-red-500 text-xs mt-1">{errors.Subject}</p>}
   </div>
 
   <div class="relative z-0 w-full mb-5 group">
@@ -214,19 +265,15 @@ if (Astro.request.method === "POST") {
       id="Message"
       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-orange-500 focus:outline-none focus:ring-0 focus:border-violet-600 peer min-h-20"
       placeholder=" "
-      required>{formData.Message}</textarea
-    >
+      required
+    >{formData.Message}</textarea>
     <label
       for="Message"
       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:left-auto peer-focus:text-violet-600 peer-focus:dark:text-orange-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
     >
-      Your message
+      Message
     </label>
-    {
-      errors.Message && (
-        <p class="text-red-500 text-xs mt-1">{errors.Message}</p>
-      )
-    }
+    {errors.Message && <p class="text-red-500 text-xs mt-1">{errors.Message}</p>}
   </div>
 
   <button
