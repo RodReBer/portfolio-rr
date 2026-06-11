@@ -1,62 +1,64 @@
 ---
 import ToogleDarkMode from "../components/ToogleDarkMode.astro";
+import { LanguageToggle } from "../components/LanguageToggle";
+import { HeaderNav } from "../components/MobileMenu";
 ---
 
 <header
   id="landing-header"
-  class={`
-    flex justify-center items-center
-    mx-auto
-    py-5
-    fixed
-    w-full
-    z-10
-    flex-col
-    md:flex-row
-    gap-2
-  `}
+  class="fixed top-0 left-0 right-0 z-50 py-4 px-4 md:px-8"
 >
-  <nav
-    class={`
-      border-[0.2px] border-black rounded-lg
-      px-2 py-1
-      flex flex-row
-      bg-black/5 
-      dark:bg-white/30
-      backdrop-blur-[20px]
-      
-      transition
-      duration-500
-    `}
-  >
-    <a
-      class="rounded-lg text-base px-2 transition text-black dark:text-white mix-blend-exclusion"
-      href="#experience">Experience</a
+  <div class="max-w-7xl mx-auto">
+    <nav
+      class="flex items-center justify-between gap-4 px-4 py-3 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/10 shadow-lg"
     >
-    <a
-      class="rounded-lg text-base px-2 transition text-black dark:text-white mix-blend-exclusion"
-      href="#projects">Projects</a
-    >
-    <a
-      class="rounded-lg text-base px-2 transition text-black dark:text-white mix-blend-exclusion"
-      href="#about-me">About me</a
-    >
-    <a
-      class="rounded-lg text-base px-2 transition text-black dark:text-white mix-blend-exclusion"
-      href="#contact">Contact</a
-    >
-  </nav>
-  <ToogleDarkMode />
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 text-white font-bold text-lg">
+        <span class="text-cyan-400">RR</span>
+      </a>
 
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-1">
+        <a
+          class="nav-link px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-200"
+          href="#experience"
+          data-i18n="nav.experience">Experience</a
+        >
+        <a
+          class="nav-link px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-200"
+          href="#projects"
+          data-i18n="nav.projects">Projects</a
+        >
+        <a
+          class="nav-link px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-200"
+          href="#about-me"
+          data-i18n="nav.about">About me</a
+        >
+        <a
+          class="nav-link px-4 py-2 rounded-lg text-sm font-medium text-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all duration-200"
+          href="#contact"
+          data-i18n="nav.contact">Contact</a
+        >
+      </div>
+
+      <!-- Right side: Language Toggle + Dark Mode + Mobile Menu -->
+      <div class="flex items-center gap-2">
+        <LanguageToggle client:load />
+        <HeaderNav client:load />
+      </div>
+    </nav>
+  </div>
+
+  <!-- Hover backdrop for nav links -->
   <div
     id="menu-backdrop"
-    class="absolute bg-black/25 dark:bg-white/25 backdrop-blur-xl rounded-lg left-[var(--left)] top-[var(--top)] w-[var(--width)] h-[var(--height)] transition-all duration-300 ease-in-out opacity-0 -z-10"
+    class="absolute bg-white/5 backdrop-blur-sm rounded-lg left-[var(--left)] top-[var(--top)] w-[var(--width)] h-[var(--height)] transition-all duration-200 ease-out opacity-0 -z-10 hidden md:block"
   >
   </div>
 </header>
 
 <script>
-  const listItem = document.querySelectorAll("#landing-header a");
+  const listItem = document.querySelectorAll("#landing-header .nav-link");
   const menuBackDrop = document.querySelector("#menu-backdrop") as HTMLElement;
 
   listItem.forEach((item) => {
@@ -74,4 +76,5 @@ import ToogleDarkMode from "../components/ToogleDarkMode.astro";
       menuBackDrop.style.visibility = "hidden";
     });
   });
+
 </script>

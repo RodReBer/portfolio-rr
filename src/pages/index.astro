@@ -17,88 +17,341 @@ import AboutMe from "../components/AboutMe.astro";
 import Experiencie from "../components/Experiencie.astro";
 import Projects from "../components/Projects.astro";
 import Contact from "../components/Contact.astro";
+import RotatingText from "../components/RotatingText.astro";
 ---
 
 <Layout
   title="Rodrigo Rey Portfolio - Web Developer and Programmer with 2 years of experience"
   description="Hire Rodrigo Rey to create your web application. Web developer specialized in creating unique applications"
 >
-  <main class="px-4">
-    <SectionContainer class="pt-44 pb-24">
-      <img
-        class="rounded-full size-12 mb-4"
-        src="/perfil.jpg"
-        alt="Rodrigo Rey"
-      />
-      <h1
-        class="text-black dark:text-white text-3xl md:4xl lg:text-5xl font-bold flex flex-row gap-x-4 pb-6 lg:pb-10"
+  <main>
+    <!-- Hero Section -->
+    <SectionContainer
+      class="pt-32 pb-24 md:pt-44 md:pb-32 relative z-10 min-h-[90vh] flex items-center justify-center"
+    >
+      <div
+        class="hero-content w-full max-w-4xl mx-auto text-center flex flex-col items-center"
       >
-        Hi👋, I'm Rodrigo Rey <a
-          href="https://www.linkedin.com/in/rodrigorey2005/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex justify-center items-center"
+        <!-- Profile Image with animated ring effect -->
+        <div
+          class="relative mb-8 profile-image flex items-center justify-center"
         >
-          <Badge>Available for hire</Badge>
-        </a>
-      </h1>
-      <h2 class="text-xl lg:text-2xl text-wrap max-w-[700px] dark:text-white text-black">
-        <span class="">+2 years of experience</span>. <span
-          class="text-yellow-300">Web and Software Developer</span
+          <!-- Rotating ring/text -->
+          <div class="absolute w-40 h-40 md:w-52 md:h-52">
+            <RotatingText />
+          </div>
+          <!-- Glow effect -->
+          <div
+            class="absolute w-32 h-32 md:w-40 md:h-40 bg-cyan-500/20 rounded-full blur-xl"
+          >
+          </div>
+          <!-- Photo -->
+          <img
+            class="relative rounded-full w-28 h-28 md:w-36 md:h-36 object-cover border-4 border-slate-800 shadow-2xl z-10"
+            src="/perfil.jpg"
+            alt="Rodrigo Rey"
+          />
+        </div>
+
+        <!-- Main Title -->
+        <h1 class="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 hero-title">
+          <span class="text-white" data-i18n="hero.greeting"
+            >Hi 👋, I'm
+          </span><span class="text-cyan-400">Rodrigo Rey</span>
+        </h1>
+
+        <h2
+          class="text-xl md:text-2xl lg:text-3xl text-gray-300 mb-8 hero-subtitle max-w-2xl mx-auto"
         >
-         From<span class="text-yellow-300"> Montevideo, Uruguay</span>.
-        <span class="opacity-75"
-          >Specialized in creating unique applications</span
-        >.
-      </h2>
+          <span data-i18n="hero.years">+4 years of experience</span>
+          <span class="text-cyan-400"> · </span>
+          <span class="text-cyan-400" data-i18n="hero.title"
+            >Web & Software Developer</span
+          >
+          <br class="hidden md:block" />
+          <span class="text-gray-400" data-i18n="hero.specialized"
+            >Specialized in creating unique applications</span
+          >
+        </h2>
 
-      <nav class="flex gap-4 mt-8 flex-wrap">
-        <SocialPill href="https://www.linkedin.com/in/rodrigorey2005/">
-          <LinkedInIcon class="size-4 md:size-6" />
-           LinkedIn
-        </SocialPill>
+        <!-- CTA Buttons -->
+        <nav
+          class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 hero-nav"
+        >
+          <a
+            href="#projects"
+            class="group inline-flex items-center gap-2 px-8 py-4 bg-cyan-600 text-white font-semibold rounded-xl hover:bg-cyan-500 transition-all duration-300 shadow-lg shadow-cyan-600/20 hover:scale-105"
+          >
+            <span data-i18n="hero.viewProjects">View my projects</span>
+            <svg
+              class="w-5 h-5 group-hover:translate-x-1 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </a>
+          <a
+            href="#contact"
+            class="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/5 hover:border-white/30 transition-all duration-300"
+          >
+            <span data-i18n="hero.contactMe">Contact me</span>
+          </a>
+        </nav>
 
-        <SocialPill href="https://github.com/RodReBer">
-          <GitHubIcon class="size-4 md:size-6" />
-           GitHub
-        </SocialPill>
-        <SocialPill href="mailto:rodrigorey2005@gmail.com">
-          <MailIcon class="size-4 md:size-6" />
-           rodrigorey2005@gmail.com
-        </SocialPill>
-      </nav>
+        <!-- Social Pills -->
+        <div class="flex gap-4 justify-center flex-wrap hero-socials">
+          <SocialPill href="https://www.linkedin.com/in/rodrigorey2005/">
+            <LinkedInIcon class="size-5" />
+            <span class="hidden sm:inline">LinkedIn</span>
+          </SocialPill>
+          <SocialPill href="https://github.com/RodReBer">
+            <GitHubIcon class="size-5" />
+            <span class="hidden sm:inline">GitHub</span>
+          </SocialPill>
+          <SocialPill href="mailto:rodrigorey2005@gmail.com">
+            <MailIcon class="size-5" />
+            <span class="hidden sm:inline">Email</span>
+          </SocialPill>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block"
+      >
+        <svg
+          class="w-6 h-6 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+        </svg>
+      </div>
     </SectionContainer>
 
-    <SectionContainer id="experience">
+    <SectionContainer id="experience" class="section-experience">
       <SubTitle>
         <BriefCase class="size-7" />
-         Work experience
+        <span data-i18n="experience.title">Work experience</span>
       </SubTitle>
       <Experiencie />
     </SectionContainer>
 
-    <SectionContainer id="projects">
+    <SectionContainer id="projects" class="section-projects">
       <SubTitle>
         <Code class="size-7" />
-         projects
+        <span data-i18n="projects.title">Projects</span>
       </SubTitle>
       <Projects />
     </SectionContainer>
 
-    <SectionContainer id="about-me">
+    <SectionContainer id="about-me" class="section-about">
       <SubTitle>
         <Info class="size-7" />
-         About me
+        <span data-i18n="about.title">About me</span>
       </SubTitle>
       <AboutMe />
     </SectionContainer>
 
-    <SectionContainer id="contact">
+    <SectionContainer id="contact" class="section-contact">
       <SubTitle>
         <MailIcon class="size-7" />
-         Contact
+        <span data-i18n="contact.title">Contact</span>
       </SubTitle>
-      <!-- <Contact />  -->
+      <Contact />
     </SectionContainer>
   </main>
 </Layout>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ===== SCROLL PROGRESS BAR =====
+  const progressBar = document.createElement("div");
+  progressBar.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #22d3ee, #06b6d4);
+    z-index: 99999;
+    transform-origin: left;
+    transform: scaleX(0);
+  `;
+  document.body.appendChild(progressBar);
+
+  gsap.to(progressBar, {
+    scaleX: 1,
+    ease: "none",
+    scrollTrigger: {
+      trigger: document.body,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 0.3,
+    },
+  });
+
+  // ===== PARALLAX EFFECT ON GLOW ORBS =====
+  gsap.to(".profile-image .absolute", {
+    yPercent: -20,
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".hero-content",
+      start: "top top",
+      end: "bottom top",
+      scrub: 1,
+    },
+  });
+
+  // ===== 3D TILT EFFECT ON PROFILE IMAGE =====
+  const profileImage = document.querySelector(".profile-image") as HTMLElement;
+  if (profileImage) {
+    profileImage.style.transformStyle = "preserve-3d";
+    profileImage.style.perspective = "1000px";
+
+    profileImage.addEventListener("mousemove", (e) => {
+      const rect = profileImage.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+
+      gsap.to(profileImage, {
+        rotateY: x / 10,
+        rotateX: -y / 10,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+    });
+
+    profileImage.addEventListener("mouseleave", () => {
+      gsap.to(profileImage, {
+        rotateY: 0,
+        rotateX: 0,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+    });
+  }
+
+  // ===== PARALLAX SECTIONS =====
+  const sections = [
+    ".section-experience",
+    ".section-projects",
+    ".section-about",
+    ".section-contact",
+  ];
+
+  sections.forEach((selector) => {
+    const section = document.querySelector(selector);
+    if (section) {
+      // Fade in on scroll
+      gsap.fromTo(
+        section,
+        { y: 60, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 85%",
+            toggleActions: "play none none reverse",
+          },
+        },
+      );
+    }
+  });
+
+  // ===== STAGGER ANIMATION FOR PROJECT CARDS =====
+  const projectCards = document.querySelectorAll(".section-projects article");
+
+  if (projectCards.length > 0) {
+    gsap.fromTo(
+      projectCards,
+      { y: 50, opacity: 0, scale: 0.95 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.6,
+        stagger: 0.15,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".section-projects",
+          start: "top 70%",
+        },
+      },
+    );
+  }
+
+  // ===== SMOOTH SCROLL INDICATOR BOUNCE =====
+  const scrollIndicator = document.querySelector(".animate-bounce");
+  if (scrollIndicator) {
+    // Stop default animation and use GSAP
+    (scrollIndicator as HTMLElement).style.animation = "none";
+
+    gsap.to(scrollIndicator, {
+      y: 10,
+      duration: 0.8,
+      repeat: -1,
+      yoyo: true,
+      ease: "power1.inOut",
+    });
+
+    // Fade out on scroll
+    gsap.to(scrollIndicator, {
+      opacity: 0,
+      scrollTrigger: {
+        trigger: ".hero-content",
+        start: "top top",
+        end: "20% top",
+        scrub: true,
+      },
+    });
+  }
+
+  // ===== HERO ENTRANCE (keeping this but simplified) =====
+  gsap.fromTo(
+    ".profile-image",
+    { scale: 0.8, opacity: 0 },
+    { scale: 1, opacity: 1, duration: 1, ease: "back.out(1.7)" },
+  );
+
+  gsap.fromTo(
+    ".hero-title",
+    { y: 30, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.8, delay: 0.5 },
+  );
+
+  gsap.fromTo(
+    ".hero-subtitle",
+    { y: 20, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.8, delay: 0.7 },
+  );
+
+  gsap.fromTo(
+    ".hero-nav",
+    { y: 20, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.6, delay: 0.9 },
+  );
+
+  gsap.fromTo(
+    ".hero-socials",
+    { y: 20, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.6, delay: 1.1 },
+  );
+</script>

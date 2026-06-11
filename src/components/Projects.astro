@@ -1,71 +1,54 @@
 ---
-import TailwindIcon from "../components/icons/Tailwind.astro";
-import ReactIcon from "../components/icons/React.astro";
-import FirebaseIcon from "../components/icons/FireBase.astro";
-import AstroIcon from "./icons/AstroIcon.astro";
-import ProjectItem from "./ProjectItem.astro";
-
-const TAGS = {
-  REACT: {
-    name: "React",
-    class: "bg-[#149eca]/10 text-black dark:text-white border-[#149eca]",
-    icon: ReactIcon,
-  },
-  FIREBASE: {
-    name: "FireBase",
-    class: "bg-[#ffcc2c]/10 text-black dark:text-white border-[#ffcc2c]",
-    icon: FirebaseIcon,
-  },
-  TAILWIND: {
-    name: "Tailwind",
-    class: "bg-[#68c7f0]/10 text-black dark:text-white border-[#68c7f0]",
-    icon: TailwindIcon,
-  },
-  ASTRO: {
-    name: "Astro",
-    class: "bg-[#ff5d01]/10 text-black dark:text-white border-[#ff5d01]",
-    icon: AstroIcon,
-  },
-};
+import { ProjectShowcase } from "./ProjectShowcase";
 
 const PROJECTS = [
   {
-    title: "Website for a clinic",
-    imageSrc:
-      "/projects/capdi-light.webp",
-    date: "2023-11-03",
-    textColor: "#3b82f6",
+    title: "Capdi",
+    titleKey: "projects.clinic.title",
+    imageSrc: "/projects/capdi.webp",
     linkProject: "https://capdi.com.uy",
-    tags: [TAGS.REACT, TAGS.FIREBASE, TAGS.TAILWIND, TAGS.ASTRO],
-    content:
-      "Used cutting-edge technologies such as React JS, Vite, Tailwind CSS, Firebase and Astro to drive project success and improve user experience.",
-    authorImage:
-      "/capdi-logo.webp",
-    authorName: "Clínica",
-    authorNameSec: "Capdi",
+    description: "Workshop for young people and adults with different abilities.",
+    descriptionKey: "projects.clinic.description",
+    authorImage: "/projects/icons/capdi-logo.webp",
+    authorName: "Capdi",
+    authorNameSec: "",
   },
   {
-    title: "Website for a school",
-    imageSrc:
-      "/projects/reina-reyes-light.webp",
-    date: "2023-05-20",
-    textColor: "#4f0f2a",
+    title: "Colegio y Liceo Reina Reyes",
+    titleKey: "projects.school.title",
+    imageSrc: "/projects/reina-reyes.webp",
     linkProject: "https://reinareyes.edu.uy",
-    tags: [TAGS.REACT, TAGS.FIREBASE, TAGS.TAILWIND],
-    content:
-      "Used cutting-edge technologies such as React JS, Vite, Tailwind CSS, Firebase and Sass to drive project success and optimize user experience.",
-    authorImage:
-      "/reina-logo.png",
+    description: "Institutional platform where families can enroll students, explore job opportunities, and stay connected with the school community.",
+    descriptionKey: "projects.school.description",
+    authorImage: "/projects/icons/reina-logo.webp",
     authorName: "Colegio y Liceo",
     authorNameSec: "Reina Reyes",
+  },
+  {
+    title: "Lerogo",
+    titleKey: "projects.lerogosrl.title",
+    imageSrc: "/projects/lerogo.webp",
+    linkProject: "https://lerogosrl.com",
+    description: "Portfolio site that showcases completed construction projects and highlights the full range of services the company offers.",
+    descriptionKey: "projects.lerogosrl.description",
+    authorImage: "/projects/icons/lerogosrl-logo.webp",
+    authorName: "Lerogo",
+    authorNameSec: "SRL",
+  },
+  {
+    title: "Crece 600",
+    titleKey: "projects.crece.title",
+    imageSrc: "/projects/crece.webp",
+    linkProject: "https://crece600.uy",
+    description: "Political platform where citizens can submit law proposals, donate, and join Robert Silva's movement — with a powerful admin panel for publishing bills, projects, and content.",
+    descriptionKey: "projects.crece.description",
+    authorImage: "/projects/icons/crece-logo.webp",
+    authorName: "Crece",
+    authorNameSec: "Robert Silva",
   },
 ];
 ---
 
-<div class="mx-auto max-w-7xl">
-  <div
-    class="mx-0 mt-16 grid  grid-cols-1 gap-x-8 gap-y-20  max-w-none lg:grid-cols-1"
-  >
-    {PROJECTS.map((card) => <ProjectItem {...card} />)}
-  </div>
+<div class="mx-auto max-w-6xl">
+  <ProjectShowcase projects={PROJECTS} client:visible />
 </div>

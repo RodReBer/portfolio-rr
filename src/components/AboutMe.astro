@@ -33,6 +33,12 @@ import JavascriptIcon from "./icons/JavaScript.astro";
 import JavaIcon from "./icons/Java.astro";
 import HaskellIcon from "./icons/Haskell.astro";
 import SassIcon from "./icons/Sass.astro";
+import TypeScriptIcon from "./icons/TypeScript.astro";
+import CSharpIcon from "./icons/CSharp.astro";
+import DotNetIcon from "./icons/DotNet.astro";
+import PythonIcon from "./icons/Python.astro";
+import PHPIcon from "./icons/PHP.astro";
+import DockerIcon from "./icons/Docker.astro";
 
 const TAGS = {
   REACT: {
@@ -188,16 +194,48 @@ const TAGS = {
     class: "bg-[#cc6699]/10 text-black dark:text-white border-[#cc6699]",
     icon: SassIcon,
   },
+  TYPESCRIPT: {
+    name: "TypeScript",
+    class: "bg-[#3178c6]/10 text-black dark:text-white border-[#3178c6]",
+    icon: TypeScriptIcon,
+  },
+  CSHARP: {
+    name: "C#",
+    class: "bg-[#a179dc]/10 text-black dark:text-white border-[#a179dc]",
+    icon: CSharpIcon,
+  },
+  DOTNET: {
+    name: ".NET",
+    class: "bg-[#512bd4]/10 text-black dark:text-white border-[#512bd4]",
+    icon: DotNetIcon,
+  },
+  PYTHON: {
+    name: "Python",
+    class: "bg-[#3776ab]/10 text-black dark:text-white border-[#3776ab]",
+    icon: PythonIcon,
+  },
+  PHP: {
+    name: "PHP",
+    class: "bg-[#777bb3]/10 text-black dark:text-white border-[#777bb3]",
+    icon: PHPIcon,
+  },
+  DOCKER: {
+    name: "Docker",
+    class: "bg-[#008fe2]/10 text-black dark:text-white border-[#008fe2]",
+    icon: DockerIcon,
+  },
 };
 
 const SKILLS = [
   {
     name: "Database",
+    nameKey: "about.database",
     icon: DatabaseIcon,
     tags: [TAGS.MONGODB, TAGS.MYSQL, TAGS.MICROSOFTSQL, TAGS.FIREBASE],
   },
   {
     name: "Software",
+    nameKey: "about.software",
     icon: SoftwareIcon,
     tags: [
       TAGS.VISUALCODE,
@@ -208,10 +246,12 @@ const SKILLS = [
       TAGS.GITHUB,
       TAGS.NPM,
       TAGS.POSTMAN,
+      TAGS.DOCKER,
     ],
   },
   {
     name: "Framework",
+    nameKey: "about.framework",
     icon: FrameworkIcon,
     tags: [
       TAGS.BOOTSTRAP,
@@ -219,10 +259,12 @@ const SKILLS = [
       TAGS.ASTRO,
       TAGS.NEXTJS,
       TAGS.TAILWIND,
+      TAGS.DOTNET,
     ],
   },
   {
     name: "Library",
+    nameKey: "about.library",
     icon: LibraryIcon,
     tags: [
       TAGS.REACT,
@@ -235,22 +277,27 @@ const SKILLS = [
   },
   {
     name: "Languages",
+    nameKey: "about.languages",
     icon: LibraryIcon,
     tags: [
+      TAGS.TYPESCRIPT,
+      TAGS.JAVASCRIPT,
+      TAGS.PYTHON,
+      TAGS.CSHARP,
+      TAGS.PHP,
       TAGS.RUBY,
+      TAGS.JAVA,
       TAGS.HTML,
       TAGS.CSS,
-      TAGS.JAVASCRIPT,
-      TAGS.JAVA,
-      TAGS.HASKELL,
       TAGS.SASS,
+      TAGS.HASKELL,
     ],
   },
 ];
 ---
 
 <div
-  class="relative isolate overflow-hidden bg-black/10 dark:bg-white/5 rounded-2xl shadow-2xl shadow-black/50 dark:shadow-2xl dark:shadow-white/5 px-6 pb-24 sm:pb-32 pt-10 lg:overflow-visible lg:px-0"
+  class="relative isolate overflow-hidden bg-black/10 dark:bg-white/5 rounded-2xl shadow-2xl shadow-black/50 dark:shadow-2xl dark:shadow-white/5 px-6 pb-8 sm:pb-12 pt-10 lg:overflow-visible lg:px-0"
 >
   <div
     class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-y-10"
@@ -262,15 +309,20 @@ const SKILLS = [
         <div class="lg:max-w-lg">
           <p
             class="text-base font-semibold leading-7 text-violet-500 dark:text-orange-400/20"
+            data-i18n="about.subtitle"
           >
             A little of me...
           </p>
           <h1
             class="mt-2 text-3xl font-bold tracking-tight dark:text-orange-400 text-gray-900 sm:text-4xl"
+            data-i18n="about.name"
           >
             Rodrigo Rey
           </h1>
-          <p class="mt-6 text-xl leading-8 text-gray-700 dark:text-white">
+          <p
+            class="mt-6 text-xl leading-8 text-gray-700 dark:text-white"
+            data-i18n="about.intro"
+          >
             I am a Systems Engineering student with a passion for technology and
             problem solving, which has allowed me to develop a solid base of
             technical skills throughout my academic training.
@@ -282,7 +334,7 @@ const SKILLS = [
       class="-ml-12 -mt-12 p-12 lg:sticky lg:top-7 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:overflow-hidden"
     >
       <img
-        class="w-[48rem] max-w-none rounded-xl bg-gray-900 shadow-xl ring-1 ring-gray-400/10 sm:w-[57rem]"
+        class="w-[48rem] max-w-none rounded-xl bg-gray-900 shadow-xl ring-1 ring-gray-400/10 sm:w-[57rem] about-image"
         src="/about-me.webp"
         alt=""
       />
@@ -294,7 +346,7 @@ const SKILLS = [
         <div
           class="max-w-xl text-base leading-7 text-gray-700 dark:text-white lg:max-w-lg"
         >
-          <p>
+          <p data-i18n="about.description">
             Additionally, I excel in communication and function effectively in
             teamwork environments. I am motivated to collaborate on projects
             that generate a positive impact on society, which reflects my
@@ -303,25 +355,32 @@ const SKILLS = [
           </p>
           <ul
             role="list"
-            class="mt-8 space-y-8 text-gray-600 dark:text-white/50"
+            class="mt-8 space-y-8 text-gray-600 dark:text-white/50 skills-list"
           >
             {
-              SKILLS.map((skill) => (
-                <li class="mt-8 flex gap-3 text-xs flex-row">
+              SKILLS.map((skill, skillIndex) => (
+                <li
+                  class="skill-category mt-8 flex gap-3 text-xs flex-row"
+                  data-skill-index={skillIndex}
+                >
                   <div>
-                    <skill.icon class="size-7 dark:text-orange-400 text-black" />
+                    <skill.icon class="size-7 dark:text-orange-400 text-black skill-icon" />
                   </div>
                   <span class=" flex flex-col gap-y-2 mt-1 ">
-                    <strong class="font-semibold text-gray-900 dark:text-white ">
+                    <strong
+                      class="font-semibold text-gray-900 dark:text-white "
+                      data-i18n={skill.nameKey}
+                    >
                       {skill.name}
                     </strong>
                     <div class="flex gap-3 flex-row flex-wrap z-0">
-                      {skill.tags.map((tag) => (
+                      {skill.tags.map((tag, tagIndex) => (
                         <div
-                          class={`flex gap-x-2 -z-10 rounded-full border  px-2 py-1 font-xs flex-wrap ${tag.class}`}
+                          class={`skill-tag flex gap-x-2 -z-10 rounded-full border px-2 py-1 font-xs flex-wrap cursor-pointer transition-all duration-300 hover:scale-110 hover:-translate-y-1 ${tag.class}`}
+                          data-tag-index={tagIndex}
+                          style={`--delay: ${tagIndex * 0.05}s;`}
                         >
                           {tag.icon && <tag.icon class="size-4" />}
-
                           {tag.name}
                         </div>
                       ))}
@@ -331,16 +390,17 @@ const SKILLS = [
               ))
             }
 
-            <p class="mt-8">
+            <p class="mt-8" data-i18n="about.ready">
               I am ready to leverage my knowledge in the dynamic field of
               technology and innovation.
             </p>
             <h2
               class="mt-16 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+              data-i18n="about.neverStop"
             >
               Never stop learning!!
             </h2>
-            <p class="mt-6">
+            <p class="mt-6" data-i18n="about.challenge">
               I am always looking for new challenges and opportunities to
               continue growing as a professional.
             </p>
@@ -350,3 +410,140 @@ const SKILLS = [
     </div>
   </div>
 </div>
+
+<style>
+  .skill-tag {
+    transform-style: preserve-3d;
+    perspective: 500px;
+    transition: all 0.3s ease;
+  }
+
+  .skill-tag:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 10px 25px -5px currentColor;
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Animation for skill categories - play once, keep visible
+  const skillCategories = document.querySelectorAll(".skill-category");
+
+  skillCategories.forEach((category, index) => {
+    gsap.fromTo(
+      category,
+      { opacity: 0, x: -50 },
+      {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        delay: index * 0.15,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: category,
+          start: "top 85%",
+          once: true,
+        },
+      },
+    );
+  });
+
+  // Stagger animation for tags within each category - each category triggers its own tags
+  const skillCategories2 = document.querySelectorAll(".skill-category");
+
+  skillCategories2.forEach((category) => {
+    const tags = category.querySelectorAll(".skill-tag");
+
+    gsap.fromTo(
+      tags,
+      {
+        opacity: 0,
+        scale: 0.5,
+        y: 20,
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.4,
+        stagger: 0.05,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: category,
+          start: "top 80%",
+          once: true,
+        },
+      },
+    );
+  });
+
+  // Animate skill icons with rotation
+  const skillIcons = document.querySelectorAll(".skill-icon");
+
+  skillIcons.forEach((icon, index) => {
+    gsap.fromTo(
+      icon,
+      { rotation: -180, scale: 0 },
+      {
+        rotation: 0,
+        scale: 1,
+        duration: 0.6,
+        delay: index * 0.1,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: icon,
+          start: "top 85%",
+          once: true,
+        },
+      },
+    );
+  });
+
+  // 3D tilt effect on hover for each tag
+  const allTags = document.querySelectorAll(".skill-tag");
+  allTags.forEach((tag) => {
+    const tagElement = tag as HTMLElement;
+
+    tagElement.addEventListener("mousemove", (e) => {
+      const rect = tagElement.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+
+      gsap.to(tagElement, {
+        rotateY: x / 5,
+        rotateX: -y / 5,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+    });
+
+    tagElement.addEventListener("mouseleave", () => {
+      gsap.to(tagElement, {
+        rotateY: 0,
+        rotateX: 0,
+        scale: 1,
+        duration: 0.5,
+        ease: "elastic.out(1, 0.5)",
+      });
+    });
+  });
+
+  // Parallax effect on about image
+  const aboutImage = document.querySelector(".about-image");
+  if (aboutImage) {
+    gsap.to(aboutImage, {
+      yPercent: -10,
+      ease: "none",
+      scrollTrigger: {
+        trigger: aboutImage,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+      },
+    });
+  }
+</script>

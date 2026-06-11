@@ -1,9 +1,12 @@
 ---
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
-import ToogleDarkMode from "../components/ToogleDarkMode.astro";
+import { CustomCursor } from "../components/CustomCursor";
+import { ShootingStars } from "../components/ShootingStars";
+import { ui, defaultLang } from "../i18n/languages";
 
 import "@fontsource-variable/onest";
+import "../styles/global.css";
 interface Props {
   title: string;
   description: string;
@@ -16,33 +19,96 @@ const { description, title } = Astro.props;
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/rr-blanca.png" />
-    <link rel="icon" type="image/svg+xml" href="/rr-blanca.png" />
+    <link rel="icon" type="image/png" href="/projects/icons/rr-blanca.png" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KCD3X6GB71"
+    <script async is:inline src="https://www.googletagmanager.com/gtag/js?id=G-KCD3X6GB71"
     ></script>
-    <script is:raw>
+    <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
       gtag("js", new Date());
-    
+
       gtag("config", "G-KCD3X6GB71");
     </script>
-    
+
+    <script is:inline define:vars={{ ui, defaultLang }}>
+      window.__i18n = {
+        t(key) {
+          const lang = localStorage.getItem('language') || defaultLang;
+          return ui[lang]?.[key] || ui[defaultLang]?.[key] || key;
+        },
+      };
+
+      function getDuration(startDateStr, lang) {
+        const [year, month] = startDateStr.split('-').map(Number);
+        const now = new Date();
+        let totalMonths = (now.getFullYear() - year) * 12 + (now.getMonth() - (month - 1));
+        if (totalMonths < 0) totalMonths = 0;
+        const years = Math.floor(totalMonths / 12);
+        const months = totalMonths % 12;
+        if (lang === 'es') {
+          if (years === 0) return `${months} ${months === 1 ? 'mes' : 'meses'}`;
+          if (months === 0) return `${years} ${years === 1 ? 'año' : 'años'}`;
+          return `${years} ${years === 1 ? 'año' : 'años'} y ${months} ${months === 1 ? 'mes' : 'meses'}`;
+        }
+        if (years === 0) return `${months} ${months === 1 ? 'month' : 'months'}`;
+        if (months === 0) return `${years} ${years === 1 ? 'year' : 'years'}`;
+        return `${years} ${years === 1 ? 'year' : 'years'} and ${months} ${months === 1 ? 'month' : 'months'}`;
+      }
+
+      function updateAll(lang) {
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const key = el.getAttribute('data-i18n');
+          if (key) el.textContent = ui[lang]?.[key] || ui[defaultLang]?.[key] || key;
+        });
+        document.querySelectorAll('[data-start-date]').forEach((el) => {
+          const startDate = el.getAttribute('data-start-date');
+          if (startDate) el.textContent = getDuration(startDate, lang);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        updateAll(localStorage.getItem('language') || defaultLang);
+      });
+
+      window.addEventListener('languageChange', (e) => updateAll(e.detail));
+    </script>
+
     <title>{title}</title>
   </head>
   <body class="relative">
-    <div
-      class="absolute top-0 bottom-0 z-[-2] min-h-screen w-full bg-neutral-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-30%,rgba(139,92,246,1),rgba(255,255,255,1))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,119,198,0.4),rgba(255,255,255,0))]"
-    >
+    <!-- Custom Cursor -->
+    <CustomCursor client:load />
+
+    <!-- Shooting Stars Background -->
+    <ShootingStars client:load />
+
+    <div class="fixed inset-0 z-[-2] bg-slate-950">
+      <!-- Subtle gradient orbs -->
+      <div
+        class="absolute top-0 -left-40 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute top-1/3 -right-40 w-80 h-80 bg-cyan-600/5 rounded-full blur-3xl"
+      >
+      </div>
+      <!-- Grid pattern overlay -->
+      <div
+        class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"
+      >
+      </div>
     </div>
-    <!-- rgba(83,116,255,0.25) -->
-    <!-- rgba(59,119,198,0.3) -->
     <Header />
     <slot />
     <Footer />
@@ -60,11 +126,20 @@ const { description, title } = Astro.props;
   }
 
   body {
-    background: #050505;
+    background: #020617;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
   }
+
+  /* Selection color */
+  ::selection {
+    background: rgba(34, 211, 238, 0.3);
+    color: white;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

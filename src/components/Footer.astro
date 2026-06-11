@@ -1,89 +1,72 @@
 ---
-const SECTIONS = [
-  {
-    title: "Experience",
-    url: "#experience",
-  },
-  {
-    title: "Projects",
-    url: "#projects",
-  },
-  {
-    title: "About me",
-    url: "#about-me",
-  },
-  {
-    title: "Contact",
-    url: "#contact",
-  },
-];
-import FacebookIcon from "../components/icons/Facebook.astro";
-import InstagramIcon from "../components/icons/Instagram.astro";
-import TwitterIcon from "../components/icons/Twitter.astro";
 import GitHubIcon from "../components/icons/GithubFooter.astro";
 import YouTubeIcon from "../components/icons/YouTube.astro";
+import LinkedInIcon from "../components/icons/LinkedIn.astro";
+
+const currentYear = new Date().getFullYear();
+
+const SOCIAL_LINKS = [
+  {
+    name: "GitHub",
+    url: "https://github.com/RodReBer",
+    icon: GitHubIcon,
+  },
+  {
+    name: "LinkedIn",
+    url: "https://www.linkedin.com/in/rodrigorey2005/",
+    icon: LinkedInIcon,
+  },
+  {
+    name: "YouTube",
+    url: "https://www.youtube.com/@rodrigorey9706/videos",
+    icon: YouTubeIcon,
+  },
+];
 ---
 
-<footer>
-  <div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
-    <nav
-      class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12"
-      aria-label="Footer"
-    >
-      {
-        SECTIONS.map((sections) => (
-          <div class="pb-6">
+<footer class="relative z-10 border-t border-white/5">
+  <div class="mx-auto max-w-6xl px-6 py-12">
+    <!-- Top Section -->
+    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+      <!-- Logo & Tagline -->
+      <div class="flex flex-col items-center md:items-start gap-2">
+        <a href="/" class="text-2xl font-bold">
+          <span class="text-cyan-400">RR</span>
+          <span class="text-white">.</span>
+        </a>
+        <p class="text-gray-500 text-sm" data-i18n="footer.tagline">
+          Building digital experiences
+        </p>
+      </div>
+
+      <!-- Social Links -->
+      <div class="flex items-center gap-4">
+        {
+          SOCIAL_LINKS.map((social) => (
             <a
-              href={sections.url}
-              class="text-sm leading-6 text-black hover:text-black/80 dark:text-white dark:hover:text-gray-200"
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-3 rounded-xl bg-white/5 text-gray-400 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all duration-300"
+              aria-label={social.name}
             >
-              {sections.title}
+              <social.icon class="w-5 h-5" />
             </a>
-          </div>
-        ))
-      }
-    </nav>
-    <div class="mt-10 flex justify-center space-x-10">
-      <!-- <a
-        href="#"
-        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
-      >
-        <span class="sr-only">Facebook</span>
-        <FacebookIcon />
-      </a> -->
-      <!-- <a
-        href="#"
-        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
-      >
-        <span class="sr-only">Instagram</span>
-        <InstagramIcon />
-      </a> -->
-      <!-- <a
-        href="#"
-        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
-      >
-        <span class="sr-only">Twitter</span>
-        <TwitterIcon />
-      </a> -->
-      <a
-        href="https://github.com/RodReBer"
-        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
-      >
-        <span class="sr-only">GitHub</span>
-        <GitHubIcon />
-      </a>
-      <a
-        href="https://www.youtube.com/@rodrigorey9706/videos"
-        class="text-violet-500 dark:text-orange-400 hover:text-violet-400 dark:hover:text-orange-300"
-      >
-        <span class="sr-only">YouTube</span>
-        <YouTubeIcon />
-      </a>
+          ))
+        }
+      </div>
     </div>
-    <p
-      class="mt-10 text-center text-xs leading-5 text-black dark:text-gray-300"
+
+    <!-- Bottom Section -->
+    <div
+      class="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left"
     >
-      &copy; 2024 Rodrigo Rey, Inc. All rights reserved.
-    </p>
+      <p class="text-gray-500 text-sm">
+        © {currentYear} Rodrigo Rey. <span data-i18n="footer.rights"
+          >All rights reserved.</span
+        >
+      </p>
+
+    </div>
   </div>
 </footer>

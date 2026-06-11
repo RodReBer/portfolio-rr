@@ -4,6 +4,7 @@ import MoonIcon from "../components/icons/Moon.astro";
 ---
 
 <button
+  id="dark-mode-toggle"
   type="button"
   class="dark:bg-orange-400/70 bg-violet-500/70 fixed bottom-4 right-4 md:relative md:bottom-0 md:right-0 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 dark:focus:ring-orange-400/70 focus:ring-violet-500/70 focus:ring-offset-2"
   role="switch"
@@ -12,10 +13,12 @@ import MoonIcon from "../components/icons/Moon.astro";
   <span class="sr-only">Use setting</span>
   <!-- Enabled: "translate-x-5", Not Enabled: "translate-x-0" -->
   <span
+    id="dark-mode-slider"
     class="translate-x-0 pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
   >
     <!-- Enabled: "opacity-0 duration-100 ease-out", Not Enabled: "opacity-100 duration-200 ease-in" -->
     <span
+      id="dark-mode-moon"
       class="opacity-100 duration-200 ease-in absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
       aria-hidden="true"
     >
@@ -23,6 +26,7 @@ import MoonIcon from "../components/icons/Moon.astro";
     </span>
     <!-- Enabled: "opacity-100 duration-200 ease-in", Not Enabled: "opacity-0 duration-100 ease-out" -->
     <span
+      id="dark-mode-sun"
       class="opacity-0 duration-100 ease-out absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
       aria-hidden="true"
     >
@@ -31,28 +35,31 @@ import MoonIcon from "../components/icons/Moon.astro";
   </span>
 </button>
 <script>
-  let button = document.querySelector("button");
-  let spanTranslate = document.querySelector(".translate-x-0");
-  let spanOpacity100 = document.querySelector(".opacity-100");
-  let spanOpacity0 = document.querySelector(".opacity-0");
+  const button = document.getElementById("dark-mode-toggle");
+  const spanTranslate = document.getElementById("dark-mode-slider");
+  const spanOpacity100 = document.getElementById("dark-mode-moon");
+  const spanOpacity0 = document.getElementById("dark-mode-sun");
 
-  button.addEventListener("click", function () {
-    let html = document.documentElement;
+  if (button && spanTranslate && spanOpacity100 && spanOpacity0) {
+    button.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const html = document.documentElement;
 
-    if (button.getAttribute("aria-checked") === "false") {
-      button.setAttribute("aria-checked", "true");
-      button.classList.replace("dark:bg-orange-400/70", "bg-violet-500/70");
-      spanTranslate.classList.replace("translate-x-0", "translate-x-5");
-      spanOpacity100.classList.replace("opacity-100", "opacity-0");
-      spanOpacity0.classList.replace("opacity-0", "opacity-100");
-      html.classList.replace("dark", "light");
-    } else {
-      button.setAttribute("aria-checked", "false");
-      button.classList.replace("bg-violet-500/70", "dark:bg-orange-400/70");
-      spanTranslate.classList.replace("translate-x-5", "translate-x-0");
-      spanOpacity100.classList.replace("opacity-0", "opacity-100");
-      spanOpacity0.classList.replace("opacity-100", "opacity-0");
-      html.classList.replace("light", "dark");
-    }
-  });
+      if (button.getAttribute("aria-checked") === "false") {
+        button.setAttribute("aria-checked", "true");
+        button.classList.replace("dark:bg-orange-400/70", "bg-violet-500/70");
+        spanTranslate.classList.replace("translate-x-0", "translate-x-5");
+        spanOpacity100.classList.replace("opacity-100", "opacity-0");
+        spanOpacity0.classList.replace("opacity-0", "opacity-100");
+        html.classList.replace("dark", "light");
+      } else {
+        button.setAttribute("aria-checked", "false");
+        button.classList.replace("bg-violet-500/70", "dark:bg-orange-400/70");
+        spanTranslate.classList.replace("translate-x-5", "translate-x-0");
+        spanOpacity100.classList.replace("opacity-0", "opacity-100");
+        spanOpacity0.classList.replace("opacity-100", "opacity-0");
+        html.classList.replace("light", "dark");
+      }
+    });
+  }
 </script>
