@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
 import { Resend } from "resend";
+import { notificationEmail } from "../../emails/notification";
+import { autoReplyEmail } from "../../emails/autoreply";
 
 export const prerender = false;
 
@@ -25,6 +27,7 @@ export const POST: APIRoute = async ({ request }) => {
   const message = formData.get("Message") as string;
   const honey = formData.get("_hp_trap") as string;
   const recaptchaToken = formData.get("recaptcha_token") as string;
+  const lang = (formData.get("lang") as string) === "es" ? "es" : "en";
 
   console.log("[contact] fields received:", {
     name: !!name,
@@ -91,28 +94,13 @@ export const POST: APIRoute = async ({ request }) => {
   const safeSubject = escapeHtml(subject);
   const safeMessage = escapeHtml(message);
 
-  const notificationHtml = `
-    <div style="font-family: system-ui, sans-serif; background:#020617; padding:40px 20px; color:#e2e8f0;">
-      <h1 style="color:#22d3ee;">New Portfolio Message</h1>
-      <p><strong>From:</strong> ${safeName} (${safeEmail})</p>
-      <p><strong>Subject:</strong> ${safeSubject}</p>
-      <div style="background:#1e293b; padding:15px; border-radius:6px; white-space:pre-wrap;">${safeMessage}</div>
-    </div>
-  `;
-
-  const autoReplyHtml = `
-    <div style="font-family: system-ui, sans-serif; background:#020617; padding:40px 20px; color:#e2e8f0;">
-      <h1 style="color:#22d3ee;">Rodrigo Rey</h1>
-      <p>Hi ${safeName} 👋,</p>
-      <p>Thanks for reaching out! I've received your message about "<strong>${safeSubject}</strong>" and will get back to you soon.</p>
-      <p>Best regards,<br/><strong style="color:#22d3ee;">Rodrigo Rey</strong></p>
-    </div>
-  `;
+  const notificationHtml = notificationEmail({ name: safeName, email: safeEmail, subject: safeSubject, message: safeMessage, lang });
+  const autoReplyHtml = autoReplyEmail({ name: safeName, subject: safeSubject, lang });
 
   const [notifResult, autoReplyResult] = await Promise.all([
     resend.emails.send({
       from: "Portfolio Contact <hola@rodrigorey.info>",
-      to: ["rodrigodynamia@gmail.com"],
+      to: ["rodrigorey2005@gmail.com"],
       subject: `New Message: ${subject}`,
       html: notificationHtml,
     }),

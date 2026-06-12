@@ -14,6 +14,7 @@ const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY ?? "";
   />
   <input type="hidden" name="timestamp" id="timestamp_field" />
   <input type="hidden" name="recaptcha_token" id="recaptcha_token" />
+  <input type="hidden" name="lang" id="lang_field" />
 
   <!-- Pasa la site key al DOM para que el script procesado la lea -->
   <span id="recaptcha-config" data-key={recaptchaSiteKey} hidden></span>
@@ -120,7 +121,7 @@ const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY ?? "";
     const rcScript = document.createElement("script");
     rcScript.src = `https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`;
     rcScript.onload = () => (window as any).grecaptcha.ready(resolve);
-    rcScript.onerror = () => rejet(new Error("Failed to load reCAPTCHA"));
+    rcScript.onerror = () => reject(new Error("Failed to load reCAPTCHA"));
     document.head.appendChild(rcScript);
   });
 
@@ -138,12 +139,16 @@ const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY ?? "";
     timestampField.value = Date.now().toString();
   }
 
+  const langField = document.getElementById("lang_field") as HTMLInputElement;
+  if (langField) {
+    langField.value = localStorage.getItem("language") || "en";
+  }
+
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     if (!messagesDiv || !submitBtn) return;
 
-    messagesDiv.style.display = "none";
     messagesDiv.className = "mb-4 hidden rounded-md p-4";
     submitBtn.disabled = true;
     submitBtn.innerText = t("contact.sending");
