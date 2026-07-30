@@ -1,127 +1,134 @@
 import type { APIRoute } from "astro";
+import { RECAPTCHA_SECRET_KEY, RESEND_API_KEY } from "astro:env/server";
 import { Resend } from "resend";
 import { notificationEmail } from "../../emails/notification";
 import { autoReplyEmail } from "../../emails/autoreply";
+import { contactSchema, escapeHtml } from "../../services/contactValidate";
 
 export const prerender = false;
 
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
-const RECAPTCHA_SECRET = import.meta.env.RECAPTCHA_SECRET_KEY;
-const RECAPTCHA_MIN_SCORE = 0.5;
+type ContactErrorCode = "VALIDATION" | "SPAM" | "SEND_FAILED";
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+type ContactResponse =
+  | { ok: true; code: "SENT" }
+  | { ok: false; code: ContactErrorCode };
+
+interface RecaptchaVerification {
+  success?: boolean;
+  action?: string;
+  score?: number;
 }
 
-export const POST: APIRoute = async ({ request }) => {
-  const formData = await request.formData();
+const resend = new Resend(RESEND_API_KEY);
+const RECAPTCHA_MIN_SCORE = 0.5;
 
-  const name = formData.get("Name") as string;
-  const email = formData.get("Email") as string;
-  const subject = formData.get("Subject") as string;
-  const message = formData.get("Message") as string;
-  const honey = formData.get("_hp_trap") as string;
-  const recaptchaToken = formData.get("recaptcha_token") as string;
-  const lang = (formData.get("lang") as string) === "es" ? "es" : "en";
-
-  console.log("[contact] fields received:", {
-    name: !!name,
-    email: !!email,
-    subject: !!subject,
-    message: !!message,
-    honey: !!honey,
-    recaptchaToken: recaptchaToken ? `${recaptchaToken.slice(0, 20)}...` : "EMPTY",
+function json(body: ContactResponse, status: number): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Cache-Control": "no-store",
+      "Content-Type": "application/json; charset=utf-8",
+    },
   });
+}
 
-  if (honey) {
-    console.log("[contact] blocked: honeypot filled");
-    return new Response(JSON.stringify({ message: "Spam detected" }), {
-      status: 400,
-    });
-  }
+async function verifyRecaptcha(token: string): Promise<boolean> {
+  if (import.meta.env.DEV) return true;
 
-  if (!import.meta.env.DEV) {
-    if (!recaptchaToken) {
-      console.log("[contact] blocked: recaptcha token missing");
-      return new Response(
-        JSON.stringify({ message: "reCAPTCHA token missing" }),
-        { status: 400 },
-      );
-    }
+  const secret = RECAPTCHA_SECRET_KEY;
+  if (!token || !secret) return false;
 
-    const verifyRes = await fetch(
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5_000);
+
+  try {
+    const response = await fetch(
       "https://www.google.com/recaptcha/api/siteverify",
       {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          secret: RECAPTCHA_SECRET,
-          response: recaptchaToken,
-        }),
+        body: new URLSearchParams({ secret, response: token }),
+        signal: controller.signal,
       },
     );
-    const verifyData = await verifyRes.json();
-    console.log("[contact] recaptcha result:", verifyData);
 
-    if (
-      !verifyData.success ||
-      verifyData.action !== "contact" ||
-      verifyData.score < RECAPTCHA_MIN_SCORE
-    ) {
-      return new Response(
-        JSON.stringify({ message: "reCAPTCHA verification failed" }),
-        { status: 400 },
-      );
-    }
-  } else {
-    console.log("[contact] DEV mode: skipping reCAPTCHA verification");
-  }
+    if (!response.ok) return false;
 
-  if (!name || !email || !subject || !message) {
-    return new Response(
-      JSON.stringify({ message: "Missing required fields" }),
-      { status: 400 },
+    const result = (await response.json()) as RecaptchaVerification;
+    return (
+      result.success === true &&
+      result.action === "contact" &&
+      typeof result.score === "number" &&
+      result.score >= RECAPTCHA_MIN_SCORE
     );
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export const POST: APIRoute = async ({ request }) => {
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return json({ ok: false, code: "VALIDATION" }, 400);
   }
 
-  const safeName = escapeHtml(name);
-  const safeEmail = escapeHtml(email);
-  const safeSubject = escapeHtml(subject);
-  const safeMessage = escapeHtml(message);
+  // Fuente de verdad de la validación: el schema de Zod (src/services/contactValidate.ts).
+  const parsed = contactSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    subject: formData.get("subject"),
+    message: formData.get("message"),
+  });
+  if (!parsed.success) {
+    return json({ ok: false, code: "VALIDATION" }, 400);
+  }
 
-  const notificationHtml = notificationEmail({ name: safeName, email: safeEmail, subject: safeSubject, message: safeMessage, lang });
-  const autoReplyHtml = autoReplyEmail({ name: safeName, subject: safeSubject, lang });
+  // Único anti-spam: reCAPTCHA v3. En desarrollo verifyRecaptcha() devuelve true.
+  const token = formData.get("recaptcha_token");
+  if (!(await verifyRecaptcha(typeof token === "string" ? token : ""))) {
+    return json({ ok: false, code: "SPAM" }, 400);
+  }
 
-  const [notifResult, autoReplyResult] = await Promise.all([
-    resend.emails.send({
+  const lang = formData.get("lang") === "en" ? "en" : "es";
+  const data = parsed.data;
+  const safe = {
+    name: escapeHtml(data.name),
+    email: escapeHtml(data.email),
+    subject: escapeHtml(data.subject),
+    message: escapeHtml(data.message),
+  };
+
+  try {
+    const notification = await resend.emails.send({
       from: "Portfolio Contact <hola@rodrigorey.info>",
       to: ["rodrigorey2005@gmail.com"],
-      subject: `New Message: ${subject}`,
-      html: notificationHtml,
-    }),
-    resend.emails.send({
-      from: "Rodrigo Rey <hola@rodrigorey.info>",
-      to: [email],
-      subject: `Start of something great! - Re: ${subject}`,
-      html: autoReplyHtml,
-    }),
-  ]);
+      replyTo: data.email,
+      subject: `[Portfolio] ${data.subject}`,
+      html: notificationEmail({ ...safe, lang }),
+    });
 
-  if (notifResult.error) {
-    console.error("Resend error:", notifResult.error);
-    return new Response(
-      JSON.stringify({ message: "Failed to send email." }),
-      { status: 500 },
-    );
+    if (notification.error) {
+      return json({ ok: false, code: "SEND_FAILED" }, 502);
+    }
+  } catch {
+    return json({ ok: false, code: "SEND_FAILED" }, 502);
   }
 
-  return new Response(
-    JSON.stringify({ message: "Message sent successfully" }),
-    { status: 200 },
-  );
+  // La respuesta de cortesía es best-effort: si falla, no cambia el éxito.
+  try {
+    await resend.emails.send({
+      from: "Rodrigo Rey <hola@rodrigorey.info>",
+      to: [data.email],
+      subject: `Re: ${data.subject}`,
+      html: autoReplyEmail({ name: safe.name, subject: safe.subject, lang }),
+    });
+  } catch {
+    // No exponer ni loguear payloads del proveedor, datos del destinatario ni tokens.
+  }
+
+  return json({ ok: true, code: "SENT" }, 200);
 };

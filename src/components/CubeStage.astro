@@ -1,0 +1,652 @@
+---
+import type { Lang, SiteCopy } from "../data/site";
+
+interface Props {
+  lang: Lang;
+  copy: SiteCopy["cube"];
+}
+
+const { lang } = Astro.props;
+---
+
+<!--
+  This is intentionally a decorative, fixed layer. The cube never owns pointer
+  input, so a gesture that starts over it still scrolls the page normally.
+-->
+<div class="cube-journey" data-cube-root data-lang={lang} data-journey-progress="0.000" aria-hidden="true">
+  <div class="cube-traveller" data-cube-traveller data-cube-float>
+    <div class="cube-canvas" data-cube-stage></div>
+  </div>
+</div>
+
+<script>
+  import type {
+    CubeController,
+    CubeSectionFocus,
+    CubeStatus,
+  } from "../lib/rubiksCube/controller";
+
+  type JourneyController = CubeController;
+
+  interface JourneyAnchor {
+    progress: number;
+    x: number;
+    y: number;
+    scale: number;
+    opacity: number;
+  }
+
+  interface JourneyFocusBoundary {
+    progress: number;
+    focus: CubeSectionFocus;
+  }
+
+  interface JourneyCorridor {
+    start: number;
+    end: number;
+    y: number;
+  }
+
+  interface JourneyModel {
+    anchors: JourneyAnchor[];
+    focusBoundaries: JourneyFocusBoundary[];
+  }
+
+  let cleanupCubeJourney: (() => void) | undefined;
+  let cubeJourneyVersion = 0;
+  const cubeMotionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+  const interpolate = (from: number, to: number, progress: number) => from + (to - from) * progress;
+  const smoothstep = (progress: number) => progress * progress * (3 - 2 * progress);
+
+  function initCubeJourney() {
+    cleanupCubeJourney?.();
+    cleanupCubeJourney = undefined;
+
+    const rootNode = document.querySelector<HTMLElement>("[data-cube-root]");
+    const homeNode = document.querySelector<HTMLElement>("[data-home-page]");
+    if (!rootNode || !homeNode) return;
+
+    const root = rootNode;
+    const home = homeNode;
+    const travellerNode = root.querySelector<HTMLElement>("[data-cube-traveller]");
+    const stageNode = root.querySelector<HTMLElement>("[data-cube-stage]");
+    if (!travellerNode || !stageNode) return;
+    const traveller = travellerNode;
+    const stage = stageNode;
+
+    const abort = new AbortController();
+    const version = ++cubeJourneyVersion;
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    let controller: JourneyController | null = null;
+    let loading = false;
+    let disposed = false;
+    let idleId: number | undefined;
+    let deferredTimer: number | undefined;
+    let refreshFrame = 0;
+    let reducedPauseFrame = 0;
+    let motionContext: { revert: () => void } | undefined;
+    let removeReducedScroll: (() => void) | undefined;
+    let motionSetupVersion = 0;
+
+    function supportsWebGL() {
+      try {
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+        const supported = Boolean(context);
+        context?.getExtension("WEBGL_lose_context")?.loseContext();
+        return supported;
+      } catch {
+        return false;
+      }
+    }
+
+    function clearScrollMotion() {
+      motionSetupVersion += 1;
+      if (refreshFrame) cancelAnimationFrame(refreshFrame);
+      refreshFrame = 0;
+      if (reducedPauseFrame) cancelAnimationFrame(reducedPauseFrame);
+      reducedPauseFrame = 0;
+      motionContext?.revert();
+      motionContext = undefined;
+      removeReducedScroll?.();
+      removeReducedScroll = undefined;
+      root.classList.remove("is-reduced-away");
+    }
+
+    function documentTopFor(element: Element | null) {
+      if (!element) return 0;
+      return element.getBoundingClientRect().top + window.scrollY;
+    }
+
+    function documentBottomFor(element: Element | null) {
+      if (!element) return 0;
+      return element.getBoundingClientRect().bottom + window.scrollY;
+    }
+
+    function scrollProgressAt(scrollPosition: number) {
+      const scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      return clamp(scrollPosition / scrollRange);
+    }
+
+    function scrollProgressFor(element: Element | null, viewportBias = 0.45) {
+      if (!element) return 0;
+      return scrollProgressAt(documentTopFor(element) - window.innerHeight * viewportBias);
+    }
+
+    function buildJourney(): JourneyModel {
+      const projects = home.querySelector<HTMLElement>("#projects");
+      const experience = home.querySelector<HTMLElement>("#experience");
+      const about = home.querySelector<HTMLElement>("#about");
+      const contact = home.querySelector<HTMLElement>("#contact");
+      const footerDock = document.querySelector<HTMLElement>("[data-cube-footer-dock]");
+      const mobile = window.innerWidth < 900;
+
+      // Section focus follows the real headings. Lateral travel is deliberately
+      // independent from these boundaries: it happens later, in the empty
+      // padding between the outgoing content and the next heading.
+      const projectsStart = clamp(scrollProgressFor(projects, mobile ? 0.72 : 0.6), 0.06, 0.28);
+      const experienceStart = clamp(
+        Math.max(projectsStart + 0.08, scrollProgressFor(experience, mobile ? 0.62 : 0.56)),
+        projectsStart + 0.08,
+        0.68,
+      );
+      const aboutStart = clamp(
+        Math.max(experienceStart + 0.07, scrollProgressFor(about, mobile ? 0.6 : 0.55)),
+        experienceStart + 0.07,
+        0.82,
+      );
+      const contactStart = clamp(
+        Math.max(aboutStart + 0.07, scrollProgressFor(contact, mobile ? 0.6 : 0.55)),
+        aboutStart + 0.07,
+        0.94,
+      );
+
+      const buildCorridor = (
+        outgoingContent: Element | null,
+        incomingSection: HTMLElement | null,
+        outgoingStart: number,
+        incomingStart: number,
+      ): JourneyCorridor => {
+        const incomingHeading = incomingSection?.querySelector(".section-heading") ?? incomingSection;
+        const contentBottom = documentBottomFor(outgoingContent);
+        const headingTop = documentTopFor(incomingHeading);
+        const crossY = mobile ? 0.76 : 0.77;
+        const crossScale = mobile ? 0.42 : 0.43;
+
+        // The Three camera leaves breathing room around the mesh. This visual
+        // footprint is closer to what can actually overlap content than the
+        // full transparent canvas box.
+        const visualHalfSize = traveller.offsetWidth * crossScale * (mobile ? 0.32 : 0.34);
+        const clearance = mobile ? 10 : 18;
+        const viewportY = window.innerHeight * crossY;
+        const earliestScroll =
+          contentBottom + clearance - (viewportY - visualHalfSize);
+        const latestScroll =
+          headingTop - clearance - (viewportY + visualHalfSize);
+        const corridorCenter = (contentBottom + headingTop) / 2 - viewportY;
+        const fallbackSpan = Math.min(
+          window.innerHeight * (mobile ? 0.075 : 0.09),
+          Math.max(32, (headingTop - contentBottom) * 0.34),
+        );
+
+        let startScroll = earliestScroll;
+        let endScroll = latestScroll;
+        if (endScroll - startScroll < 28) {
+          startScroll = corridorCenter - fallbackSpan / 2;
+          endScroll = corridorCenter + fallbackSpan / 2;
+        }
+
+        const minProgress = outgoingStart + 0.012;
+        const maxProgress = incomingStart - 0.012;
+        const start = clamp(scrollProgressAt(startScroll), minProgress, maxProgress - 0.006);
+        const end = clamp(
+          scrollProgressAt(endScroll),
+          start + 0.006,
+          maxProgress,
+        );
+
+        return { start, end, y: crossY };
+      };
+
+      const projectsCorridor = buildCorridor(
+        projects?.querySelector(".project-grid") ?? projects,
+        experience,
+        projectsStart,
+        experienceStart,
+      );
+      const experienceCorridor = buildCorridor(
+        experience?.querySelector(".timeline") ?? experience,
+        about,
+        experienceStart,
+        aboutStart,
+      );
+      const aboutCorridor = buildCorridor(
+        about?.querySelector(".about-grid") ?? about,
+        contact,
+        aboutStart,
+        contactStart,
+      );
+
+      const maxScroll = Math.max(
+        1,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      const dockRect = footerDock?.getBoundingClientRect();
+      const dockDocumentCenterY = dockRect
+        ? dockRect.top + window.scrollY + dockRect.height / 2
+        : maxScroll + window.innerHeight * 0.78;
+      const dockScale = dockRect
+        ? clamp(
+            (dockRect.width / Math.max(1, traveller.offsetWidth)) * 1.45,
+            mobile ? 0.42 : 0.16,
+            mobile ? 0.68 : 0.32,
+          )
+        : mobile ? 0.34 : 0.24;
+      const dockAnchor: JourneyAnchor = {
+        progress: 1,
+        x: dockRect
+          ? clamp((dockRect.left + dockRect.width / 2) / window.innerWidth, 0.03, 0.97)
+          : 0.1,
+        y: clamp(
+          (dockDocumentCenterY - maxScroll) / window.innerHeight,
+          0.08,
+          0.94,
+        ),
+        scale: dockScale,
+        opacity: footerDock ? 1 : 0,
+      };
+      const contactContent =
+        contact?.querySelector(".contact-layout") ?? contact;
+      const footerApproachDocumentY =
+        documentBottomFor(contactContent)
+        + Math.max(
+          24,
+          (dockDocumentCenterY - documentBottomFor(contactContent)) * 0.24,
+        );
+      const footerApproach = clamp(
+        scrollProgressAt(
+          footerApproachDocumentY
+          - window.innerHeight * (mobile ? 0.76 : 0.77),
+        ),
+        contactStart + 0.025,
+        0.965,
+      );
+      const focusBoundaries: JourneyFocusBoundary[] = [
+        { progress: 0, focus: "hero" },
+        { progress: projectsStart, focus: "projects" },
+        { progress: experienceStart, focus: "experience" },
+        { progress: aboutStart, focus: "about" },
+        { progress: contactStart, focus: "contact" },
+        { progress: footerApproach, focus: "footer" },
+      ];
+
+      if (mobile) {
+        const heroCopy = home.querySelector<HTMLElement>(".hero-copy");
+        const heroCopyBottom = heroCopy
+          ? heroCopy.getBoundingClientRect().bottom + window.scrollY
+          : window.innerHeight * 0.65;
+        const initialY = clamp(
+          (heroCopyBottom + traveller.offsetWidth * 0.48 + 16) / window.innerHeight,
+          0.72,
+          1.4,
+        );
+        return {
+          anchors: [
+            { progress: 0, x: 0.77, y: initialY, scale: 0.96, opacity: 1 },
+            { progress: projectsStart, x: 0.9, y: 0.56, scale: 0.54, opacity: 0.9 },
+            { progress: projectsCorridor.start, x: 0.91, y: projectsCorridor.y, scale: 0.42, opacity: 0.84 },
+            { progress: projectsCorridor.end, x: 0.08, y: projectsCorridor.y, scale: 0.42, opacity: 0.86 },
+            { progress: experienceStart, x: 0.08, y: 0.46, scale: 0.48, opacity: 0.88 },
+            { progress: experienceCorridor.start, x: 0.08, y: experienceCorridor.y, scale: 0.42, opacity: 0.84 },
+            { progress: experienceCorridor.end, x: 0.91, y: experienceCorridor.y, scale: 0.42, opacity: 0.86 },
+            { progress: aboutStart, x: 0.91, y: 0.47, scale: 0.47, opacity: 0.86 },
+            { progress: aboutCorridor.start, x: 0.91, y: aboutCorridor.y, scale: 0.4, opacity: 0.84 },
+            { progress: aboutCorridor.end, x: 0.08, y: aboutCorridor.y, scale: 0.4, opacity: 0.86 },
+            { progress: contactStart, x: 0.08, y: 0.45, scale: 0.44, opacity: 0.88 },
+            { progress: footerApproach, x: 0.08, y: 0.76, scale: 0.38, opacity: 0.9 },
+            dockAnchor,
+          ],
+          focusBoundaries,
+        };
+      }
+
+      return {
+        anchors: [
+          { progress: 0, x: 0.75, y: 0.48, scale: 1.08, opacity: 1 },
+          { progress: projectsStart, x: 0.9, y: 0.56, scale: 0.52, opacity: 0.96 },
+          { progress: projectsCorridor.start, x: 0.9, y: projectsCorridor.y, scale: 0.43, opacity: 0.9 },
+          { progress: projectsCorridor.end, x: 0.075, y: projectsCorridor.y, scale: 0.43, opacity: 0.92 },
+          { progress: experienceStart, x: 0.075, y: 0.48, scale: 0.48, opacity: 0.94 },
+          { progress: experienceCorridor.start, x: 0.075, y: experienceCorridor.y, scale: 0.43, opacity: 0.9 },
+          { progress: experienceCorridor.end, x: 0.9, y: experienceCorridor.y, scale: 0.43, opacity: 0.92 },
+          { progress: aboutStart, x: 0.9, y: 0.49, scale: 0.47, opacity: 0.92 },
+          { progress: aboutCorridor.start, x: 0.9, y: aboutCorridor.y, scale: 0.42, opacity: 0.88 },
+          { progress: aboutCorridor.end, x: 0.075, y: aboutCorridor.y, scale: 0.42, opacity: 0.9 },
+          { progress: contactStart, x: 0.075, y: 0.47, scale: 0.46, opacity: 0.94 },
+          { progress: footerApproach, x: 0.075, y: 0.77, scale: 0.4, opacity: 0.92 },
+          dockAnchor,
+        ],
+        focusBoundaries,
+      };
+    }
+
+    function sampleJourney(anchors: JourneyAnchor[], progress: number) {
+      const boundedProgress = clamp(progress);
+      const first = anchors[0] ?? { progress: 0, x: 0.5, y: 0.5, scale: 1, opacity: 0 };
+      const last = anchors.at(-1) ?? first;
+      if (boundedProgress >= last.progress) return last;
+      const nextIndex = anchors.findIndex((anchor) => anchor.progress >= boundedProgress);
+      const toIndex = Math.max(1, nextIndex);
+      const from = anchors[toIndex - 1] ?? first;
+      const to = anchors[toIndex] ?? last;
+      const segmentLength = Math.max(0.001, to.progress - from.progress);
+      const segmentProgress = smoothstep(clamp((boundedProgress - from.progress) / segmentLength));
+      return {
+        progress: boundedProgress,
+        x: interpolate(from.x, to.x, segmentProgress),
+        y: interpolate(from.y, to.y, segmentProgress),
+        scale: interpolate(from.scale, to.scale, segmentProgress),
+        opacity: interpolate(from.opacity, to.opacity, segmentProgress),
+      };
+    }
+
+    function placeTraveller(anchor: JourneyAnchor) {
+      const size = traveller.offsetWidth;
+      const x = anchor.x * window.innerWidth - size / 2;
+      const y = anchor.y * window.innerHeight - size / 2;
+      traveller.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${anchor.scale.toFixed(3)})`;
+      traveller.style.opacity = anchor.opacity.toFixed(3);
+    }
+
+    function sampleSectionFocus(
+      boundaries: JourneyFocusBoundary[],
+      progress: number,
+    ) {
+      const boundedProgress = clamp(progress);
+      let current = boundaries[0]?.focus ?? "hero";
+
+      for (let index = 1; index < boundaries.length; index += 1) {
+        const boundary = boundaries[index];
+        if (!boundary) continue;
+        const previousBoundary = boundaries[index - 1];
+        const nextBoundary = boundaries[index + 1];
+        const previousGap = boundary.progress - (previousBoundary?.progress ?? 0);
+        const nextGap = (nextBoundary?.progress ?? 1) - boundary.progress;
+        const transitionRadius = Math.max(
+          0.012,
+          Math.min(0.034, previousGap * 0.18, nextGap * 0.18),
+        );
+        const transitionStart = boundary.progress - transitionRadius;
+        const transitionEnd = boundary.progress + transitionRadius;
+
+        if (boundedProgress < transitionStart) {
+          return { from: current, to: current, blend: 0 };
+        }
+        if (boundedProgress <= transitionEnd) {
+          return {
+            from: current,
+            to: boundary.focus,
+            blend: clamp(
+              (boundedProgress - transitionStart)
+              / Math.max(0.001, transitionEnd - transitionStart),
+            ),
+          };
+        }
+        current = boundary.focus;
+      }
+
+      return { from: current, to: current, blend: 0 };
+    }
+
+    function setupReducedMotion() {
+      const journey = buildJourney();
+      placeTraveller(sampleJourney(journey.anchors, 0));
+      root.dataset.journeyProgress = "0.000";
+      root.dataset.cubeFocus = "hero";
+      controller?.setNarrativeProgress(0);
+      controller?.setSectionFocus("hero", "hero", 0);
+      controller?.requestRender();
+      reducedPauseFrame = requestAnimationFrame(() => {
+        reducedPauseFrame = 0;
+        if (cubeMotionPreference.matches) controller?.pause();
+      });
+
+      const updateVisibility = () => {
+        const hero = home.querySelector<HTMLElement>(".hero");
+        const heroEnd = hero ? hero.offsetTop + hero.offsetHeight * 0.82 : window.innerHeight * 0.82;
+        root.classList.toggle("is-reduced-away", window.scrollY > heroEnd);
+      };
+      window.addEventListener("scroll", updateVisibility, { passive: true });
+      updateVisibility();
+      removeReducedScroll = () => window.removeEventListener("scroll", updateVisibility);
+    }
+
+    async function setupScrollMotion() {
+      clearScrollMotion();
+      if (!controller || disposed) return;
+      if (cubeMotionPreference.matches) {
+        setupReducedMotion();
+        return;
+      }
+
+      controller.resume();
+      const setupVersion = ++motionSetupVersion;
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+        import("gsap"),
+        import("gsap/ScrollTrigger"),
+      ]);
+      if (
+        disposed
+        || setupVersion !== motionSetupVersion
+        || version !== cubeJourneyVersion
+        || !root.isConnected
+        || !controller
+      ) return;
+
+      gsap.registerPlugin(ScrollTrigger);
+      let journey = buildJourney();
+      const scrubbed = { progress: 0 };
+      let scrubTween: ReturnType<typeof gsap.to> | undefined;
+
+      const renderProgress = (progress: number) => {
+        const sample = sampleJourney(journey.anchors, progress);
+        const focus = sampleSectionFocus(journey.focusBoundaries, progress);
+        placeTraveller(sample);
+        root.dataset.journeyProgress = clamp(progress).toFixed(3);
+        root.dataset.cubeFocus = focus.blend >= 0.5 ? focus.to : focus.from;
+        controller?.setNarrativeProgress(progress);
+        controller?.setSectionFocus(focus.from, focus.to, focus.blend);
+      };
+
+      motionContext = gsap.context(() => {
+        const trigger = ScrollTrigger.create({
+          trigger: home,
+          start: "top top",
+          // Journey geometry is expressed against the complete document. The
+          // footer is outside <main>, so ending at `home bottom` made the
+          // traveller run ahead of the measured section positions.
+          end: () => `+=${Math.max(
+            1,
+            document.documentElement.scrollHeight - window.innerHeight,
+          )}`,
+          invalidateOnRefresh: true,
+          onRefreshInit: () => { journey = buildJourney(); },
+          onRefresh: (self) => {
+            scrubbed.progress = self.progress;
+            renderProgress(self.progress);
+          },
+          onUpdate: (self) => {
+            scrubTween?.kill();
+            scrubTween = gsap.to(scrubbed, {
+              progress: self.progress,
+              duration: 0.36,
+              ease: "power2.out",
+              overwrite: true,
+              onUpdate: () => renderProgress(scrubbed.progress),
+            });
+          },
+          onEnterBack: () => controller?.resume(),
+        });
+        scrubbed.progress = trigger.progress;
+        renderProgress(trigger.progress);
+      }, root);
+      const context = motionContext;
+      motionContext = {
+        revert: () => {
+          scrubTween?.kill();
+          scrubTween = undefined;
+          context?.revert();
+        },
+      };
+
+      refreshFrame = requestAnimationFrame(() => {
+        refreshFrame = 0;
+        ScrollTrigger.refresh();
+      });
+    }
+
+    function handleStatus(status: CubeStatus) {
+      root.classList.toggle("is-ready", status.phase !== "error");
+    }
+
+    async function loadCube() {
+      if (loading || controller || disposed || !supportsWebGL()) return;
+      loading = true;
+      try {
+        const { createController } = await import("../lib/rubiksCube/controller");
+        if (disposed || !stage.isConnected || version !== cubeJourneyVersion) return;
+        const created = createController(stage) as JourneyController;
+        if (disposed) {
+          created.dispose();
+          return;
+        }
+        controller = created;
+        controller.start({ autoplay: false, onStatusChange: handleStatus });
+        if (controller.getStatus().phase === "error") {
+          controller.dispose();
+          controller = null;
+          return;
+        }
+        if (!cubeMotionPreference.matches) {
+          controller.setNarrativeProgress(0);
+          controller.setSectionFocus("hero", "hero", 0);
+        }
+        root.classList.add("is-ready");
+        await setupScrollMotion();
+      } catch (error) {
+        root.classList.remove("is-ready");
+        if (!disposed) console.error("Unable to initialize the travelling Rubik cube", error);
+      } finally {
+        loading = false;
+      }
+    }
+
+    // Scrolling is an explicit interaction and therefore may opt into the 3D
+    // layer even when Save-Data is enabled. Save-Data only disables auto-load.
+    window.addEventListener("scroll", () => void loadCube(), {
+      once: true,
+      passive: true,
+      signal: abort.signal,
+    });
+
+    if (!connection?.saveData) {
+      const scheduleAfterLoad = () => {
+        if (disposed) return;
+        deferredTimer = window.setTimeout(() => {
+          if (disposed) return;
+          const schedule = () => void loadCube();
+          if (typeof idleWindow.requestIdleCallback === "function") {
+            idleId = idleWindow.requestIdleCallback(schedule, { timeout: 1_800 });
+          } else {
+            idleId = window.setTimeout(schedule, 360);
+          }
+        }, 900);
+      };
+      if (document.readyState === "complete") scheduleAfterLoad();
+      else window.addEventListener("load", scheduleAfterLoad, { once: true, signal: abort.signal });
+    }
+
+    const handleMotionChange = () => {
+      if (controller) void setupScrollMotion();
+    };
+    cubeMotionPreference.addEventListener("change", handleMotionChange, { signal: abort.signal });
+
+    cleanupCubeJourney = () => {
+      disposed = true;
+      cubeJourneyVersion += 1;
+      abort.abort();
+      clearScrollMotion();
+      if (deferredTimer !== undefined) window.clearTimeout(deferredTimer);
+      if (idleId !== undefined) {
+        if (typeof idleWindow.cancelIdleCallback === "function") idleWindow.cancelIdleCallback(idleId);
+        else window.clearTimeout(idleId);
+      }
+      root.classList.remove("is-ready", "is-reduced-away");
+      delete root.dataset.journeyProgress;
+      delete root.dataset.cubeFocus;
+      controller?.dispose();
+      controller = null;
+    };
+  }
+
+  document.addEventListener("astro:page-load", initCubeJourney);
+  document.addEventListener("astro:before-swap", () => cleanupCubeJourney?.());
+</script>
+
+<style>
+  .cube-journey {
+    position: fixed;
+    inset: 0;
+    z-index: 12;
+    overflow: hidden;
+    overflow: clip;
+    contain: layout paint style;
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity var(--motion-base), visibility 0s linear var(--motion-base);
+  }
+
+  .cube-journey.is-ready {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .cube-journey.is-reduced-away { opacity: 0; }
+
+  .cube-traveller {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: clamp(20rem, 27vw, 27rem);
+    aspect-ratio: 1;
+    filter: drop-shadow(0 1.4rem 1.8rem rgba(0, 0, 0, .42));
+    opacity: 0;
+    transform-origin: center;
+    will-change: transform, opacity;
+  }
+
+  .cube-canvas {
+    position: absolute;
+    inset: 0;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .cube-canvas :global(canvas) { pointer-events: none !important; }
+
+  @media (max-width: 899px) {
+    .cube-traveller { width: clamp(8.75rem, 37vw, 11rem); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cube-journey { transition: none; }
+    .cube-traveller { will-change: auto; }
+  }
+</style>

@@ -1,0 +1,110 @@
+---
+import { Image } from "astro:assets";
+import profileImage from "../assets/perfil.jpg";
+import type { SiteCopy } from "../data/site";
+import SectionHeading from "./SectionHeading.astro";
+
+interface Props {
+  copy: SiteCopy["about"];
+  portraitAlt: string;
+}
+const { copy, portraitAlt } = Astro.props;
+---
+
+<section id="about" class="section-shell site-shell about-section" style="--section-accent:var(--rubik-orange)">
+  <SectionHeading eyebrow={copy.eyebrow} title={copy.title} accent="orange" />
+
+  <div class="about-grid">
+    <div class="about-content">
+      <div class="about-copy rubik-panel" data-reveal>
+        <p class="intro">{copy.intro}</p>
+        <p>{copy.description}</p>
+
+        <div class="strengths">
+          <h3>{copy.strengthsTitle}</h3>
+          <ul>{copy.strengths.map((strength, index) => <li><span>0{index + 1}</span>{strength}</li>)}</ul>
+        </div>
+      </div>
+
+      <div class="technology-panel rubik-panel" data-reveal>
+        <h3>{copy.primaryTechnologiesTitle}</h3>
+        <ul class="primary-tech">
+          {copy.primaryTechnologies.map((technology, index) => <li style={`--tile-index:${index}`}>{technology}</li>)}
+        </ul>
+
+        <details>
+          <summary>{copy.moreTechnologiesSummary}<span aria-hidden="true">+</span></summary>
+          <ul class="more-tech">{copy.moreTechnologies.map((technology) => <li>{technology}</li>)}</ul>
+        </details>
+      </div>
+    </div>
+
+    <div class="portrait-mosaic" data-reveal>
+      <figure class="portrait-tile">
+        <Image
+          src={profileImage}
+          alt={portraitAlt}
+          width={832}
+          height={1040}
+          widths={[480, 640, 832]}
+          sizes="(min-width: 880px) 26rem, calc(100vw - 2rem)"
+          loading="lazy"
+        />
+      </figure>
+
+      <span class="rubik-tile tile-orange" aria-hidden="true"></span>
+      <span class="rubik-tile tile-green" aria-hidden="true"></span>
+
+      <span class="rubik-tile tile-red about-fill" aria-hidden="true"></span>
+
+      <span class="rubik-tile tile-blue" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-grid { display: grid; min-width: 0; gap: 1rem; margin-top: 2.5rem; }
+  .about-content { display: grid; min-width: 0; align-content: start; gap: 1rem; }
+  .about-copy, .technology-panel { padding: clamp(1.35rem, 4vw, 2rem); }
+  .about-copy > p { margin: 0; color: var(--color-muted); line-height: 1.75; }
+  .about-copy .intro { margin-bottom: .8rem; color: var(--color-ink); font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 620; line-height: 1.5; }
+  h3 { margin: 0; font-size: 1rem; font-weight: 750; }
+  .strengths { margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid var(--color-border); }
+  .strengths ul { display: grid; gap: .55rem; margin: .9rem 0 0; padding: 0; list-style: none; }
+  .strengths li { display: flex; align-items: center; gap: .7rem; color: #d7d9de; }
+  .strengths span { color: var(--rubik-orange); font-family: ui-monospace, monospace; font-size: .7rem; }
+  .portrait-mosaic { display: grid; min-width: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem; padding: .45rem; border: 4px solid var(--rubik-joint); border-radius: .72rem; outline: 1px solid var(--color-border); background: var(--rubik-joint); box-shadow: 0 22px 60px rgba(0,0,0,.34); }
+  .portrait-tile { position: relative; min-width: 0; margin: 0; overflow: hidden; border: 2px solid var(--rubik-joint); border-radius: .42rem; outline: 1px solid rgba(255,255,255,.08); background: var(--color-panel); }
+  .portrait-tile { grid-column: 1 / -1; aspect-ratio: 4 / 5; }
+  .portrait-tile::after { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(145deg, transparent 58%, rgba(255,107,26,.11)); content: ""; }
+  .portrait-tile :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; filter: saturate(.88) contrast(1.03); }
+  .rubik-tile { min-height: 5rem; border: 2px solid var(--rubik-joint); border-radius: .42rem; outline: 1px solid rgba(255,255,255,.1); box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 -10px 18px rgba(0,0,0,.12); }
+  .tile-orange { background: var(--rubik-orange); }
+  .tile-green { background: var(--rubik-green); }
+  .tile-red { background: var(--rubik-red); }
+  .tile-blue { background: var(--rubik-blue); }
+  .about-fill { grid-column: span 2; }
+  .primary-tech { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .5rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+  .primary-tech li { min-width: 0; border: 1px solid var(--color-border); border-radius: .4rem; padding: .75rem; background: rgba(255,255,255,.025); font-size: .88rem; font-weight: 650; }
+  .primary-tech li::before { display: inline-block; width: .55rem; height: .55rem; margin-right: .55rem; border-radius: 1px; background: var(--rubik-orange); content: ""; }
+  details { margin-top: 1.2rem; border-top: 1px solid var(--color-border); padding-top: .75rem; }
+  summary { display: flex; min-height: 2.75rem; cursor: pointer; align-items: center; justify-content: space-between; border-radius: .4rem; color: var(--color-muted); font-size: .88rem; font-weight: 650; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary span { color: var(--rubik-orange); font-size: 1.4rem; transition: transform var(--motion-fast); }
+  details[open] summary span { transform: rotate(45deg); }
+  .more-tech { display: flex; flex-wrap: wrap; gap: .45rem; margin: .7rem 0 0; padding: 0; list-style: none; }
+  .more-tech li { border: 1px solid var(--color-border); border-radius: .32rem; padding: .35rem .6rem; color: var(--color-muted); font-size: .75rem; }
+  @media (min-width: 880px) {
+    .about-grid { grid-template-columns: minmax(0, 1fr) minmax(26rem, .86fr); align-items: start; gap: clamp(1.2rem, 3vw, 2.4rem); }
+    .portrait-mosaic { grid-template-columns: 2fr 2fr 1fr; grid-template-rows: 2fr 2fr 1fr; aspect-ratio: 4 / 5; }
+    .portrait-tile { grid-column: 1 / 3; grid-row: 1 / 3; aspect-ratio: auto; }
+    .tile-orange { grid-column: 3; grid-row: 1; }
+    .tile-green { grid-column: 3; grid-row: 2; }
+    .about-fill { grid-column: 1 / 3; grid-row: 3; }
+    .tile-blue { grid-column: 3; grid-row: 3; }
+    .primary-tech { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  }
+  @media (max-width: 879px) {
+    .portrait-mosaic { order: -1; }
+  }
+</style>

@@ -1,0 +1,288 @@
+---
+import type { Lang, SiteCopy } from "../data/site";
+import { formatDuration, formatMonthYear } from "../lib/duration";
+import SectionHeading from "./SectionHeading.astro";
+
+interface Props { copy: SiteCopy["experience"]; lang: Lang; }
+const { copy, lang } = Astro.props;
+const nodePatterns: readonly (readonly number[])[] = [
+  [1, 4, 7],
+  [3, 4, 5],
+];
+const faceCells = Array.from({ length: 9 }, (_, index) => index);
+---
+
+<section id="experience" class="section-shell site-shell experience-section" style="--section-accent:var(--rubik-green)">
+  <SectionHeading eyebrow={copy.eyebrow} title={copy.title} description={copy.description} accent="green" />
+  <ol class="timeline">
+    {copy.items.map((item, index) => {
+      const pattern = nodePatterns[index % nodePatterns.length] ?? nodePatterns[0] ?? [];
+      const current = item.endDate === null;
+      const startLabel = formatMonthYear(item.startDate, lang);
+      const endLabel = item.endDate ? formatMonthYear(item.endDate, lang) : copy.present;
+      const duration = formatDuration(item.startDate, item.endDate, lang);
+
+      return (
+      <li class="timeline-item" data-reveal>
+        <div class="timeline-marker" aria-hidden="true">
+          <span class="marker-face">
+            {faceCells.map((cell) => <i class:list={{ active: pattern.includes(cell) }}></i>)}
+          </span>
+          <span class="marker-code">F{index + 1}</span>
+        </div>
+        <article class="rubik-panel timeline-card">
+          <span class="card-grid" aria-hidden="true">
+            {faceCells.map((cell) => <i class:list={{ active: cell === 4 }}></i>)}
+          </span>
+          <div class="timeline-meta">
+            <span class="timeline-range">
+              {current && <i class="live-dot" aria-hidden="true"></i>}
+              {startLabel} — {endLabel}<span class="duration" data-duration data-start={item.startDate} data-end={item.endDate ?? ""}>{duration}</span>
+            </span>
+          </div>
+          <h3>{item.role}</h3>
+          <p class="company">{item.company}</p>
+          <p class="description">{item.description}</p>
+        </article>
+      </li>
+      );
+    })}
+  </ol>
+</section>
+
+<style>
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: 1.1rem;
+    margin: 2.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .timeline::before {
+    position: absolute;
+    top: 1.35rem;
+    bottom: 1.35rem;
+    left: 1.35rem;
+    width: 4px;
+    background:
+      linear-gradient(90deg, #050608 0 25%, var(--rubik-green) 25% 50%, #050608 50% 75%, rgba(0, 155, 90, 0.22) 75%);
+    box-shadow: 0 0 0 1px #050608;
+    content: "";
+  }
+
+  .timeline-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .timeline-marker {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-top: 1rem;
+    place-items: center;
+  }
+
+  .marker-face {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 4px;
+    border: 1px solid #2f353f;
+    border-radius: 0.52rem;
+    background: #050608;
+    box-shadow:
+      0 9px 22px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .marker-face i {
+    border-radius: 1px;
+    background: #1a1e25;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  }
+
+  .marker-face i.active {
+    background: var(--rubik-green);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  }
+
+  .marker-code {
+    position: absolute;
+    right: -0.25rem;
+    bottom: -0.45rem;
+    border: 2px solid #050608;
+    border-radius: 0.2rem;
+    padding: 0.08rem 0.2rem;
+    background: var(--rubik-green);
+    color: white;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.55rem;
+    font-weight: 850;
+    letter-spacing: 0.03em;
+    line-height: 1;
+  }
+
+  .timeline-card {
+    overflow: hidden;
+    border: 4px solid #050608;
+    border-radius: 0.9rem;
+    outline: 1px solid var(--color-border);
+    padding: 1.35rem;
+    background: linear-gradient(145deg, rgba(25, 29, 35, 0.98), rgba(13, 16, 20, 0.98));
+    box-shadow:
+      0 18px 48px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  }
+
+  .timeline-card::before {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--rubik-green) 0 34%,
+      transparent 34% 36%,
+      rgba(0, 155, 90, 0.3) 36% 68%,
+      transparent 68%
+    );
+    content: "";
+  }
+
+  .card-grid {
+    position: absolute;
+    top: -1.7rem;
+    right: -1.7rem;
+    display: grid;
+    width: 9rem;
+    height: 9rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    opacity: 0.105;
+    pointer-events: none;
+  }
+
+  .card-grid i {
+    border: 1px solid #52a67f;
+    border-radius: 0.28rem;
+    background: rgba(0, 155, 90, 0.08);
+  }
+
+  .card-grid i.active {
+    background: var(--rubik-green);
+  }
+
+  .timeline-meta,
+  .timeline-card h3,
+  .timeline-card p {
+    position: relative;
+    z-index: 1;
+  }
+
+  .timeline-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    color: var(--color-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+  }
+
+  .live-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.45rem;
+    border: 2px solid #050608;
+    border-radius: 1px;
+    background: var(--rubik-green);
+    box-shadow: 0 0 0 1px var(--rubik-green);
+    vertical-align: middle;
+  }
+
+  .duration {
+    color: #74d8a7;
+  }
+
+  /* El separador solo aparece cuando hay duración (un puesto que arranca el mes
+     que viene todavía no muestra meses). */
+  .duration:not(:empty)::before {
+    content: " · ";
+    color: var(--color-muted);
+  }
+
+  h3 {
+    margin: 0.9rem 0 0;
+    font-size: clamp(1.25rem, 3vw, 1.7rem);
+    font-weight: 750;
+    letter-spacing: -0.025em;
+  }
+
+  .company {
+    margin: 0.2rem 0 0;
+    color: #74d8a7;
+    font-weight: 650;
+  }
+
+  .description {
+    max-width: 50rem;
+    margin: 0.8rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.65;
+  }
+
+  @media (min-width: 720px) {
+    .timeline {
+      gap: 1.3rem;
+    }
+
+    .timeline::before {
+      left: 1.5rem;
+    }
+
+    .timeline-item {
+      grid-template-columns: 3rem minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+
+    .timeline-marker {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .timeline-card {
+      padding: 1.6rem 1.8rem;
+    }
+  }
+</style>
+
+<script>
+  // La home es estática, así que la duración que sirve el servidor queda
+  // congelada en el build. Acá la recalculamos con la fecha real del visitante
+  // para que "X meses" se actualice solo. Reusa el mismo formateo que el servidor.
+  import { formatDuration } from "../lib/duration";
+
+  function updateDurations() {
+    const lang = document.documentElement.lang === "en" ? "en" : "es";
+    document.querySelectorAll<HTMLElement>("[data-duration]").forEach((element) => {
+      const start = element.dataset.start;
+      if (!start) return;
+      element.textContent = formatDuration(start, element.dataset.end || null, lang);
+    });
+  }
+
+  updateDurations();
+  document.addEventListener("astro:page-load", updateDurations);
+</script>

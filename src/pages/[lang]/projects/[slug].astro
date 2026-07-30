@@ -1,0 +1,28 @@
+---
+import type { GetStaticPaths } from "astro";
+import ProjectDetail from "../../../components/ProjectDetail.astro";
+import {
+  LANGS,
+  PROJECTS,
+  getProject,
+  normalizeLang,
+} from "../../../data/site";
+
+export const prerender = true;
+
+export const getStaticPaths = (() =>
+  LANGS.flatMap((lang) =>
+    PROJECTS.map((project) => ({
+      params: { lang, slug: project.slug },
+    })),
+  )) satisfies GetStaticPaths;
+
+const lang = normalizeLang(Astro.currentLocale);
+const project = getProject(lang, Astro.params.slug ?? "");
+
+if (!project) {
+  throw new Error(`Unknown project route: ${Astro.url.pathname}`);
+}
+---
+
+<ProjectDetail lang={lang} project={project} />

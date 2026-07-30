@@ -1,0 +1,57 @@
+---
+interface Props {
+  size?: "sm" | "md";
+  decorative?: boolean;
+}
+
+const { size = "md", decorative = false } = Astro.props;
+const colors = [
+  "var(--rubik-yellow)",
+  "var(--rubik-blue)",
+  "var(--rubik-red)",
+  "var(--rubik-green)",
+  "var(--rubik-white)",
+  "var(--rubik-orange)",
+  "var(--rubik-blue)",
+  "var(--rubik-yellow)",
+  "var(--rubik-green)",
+];
+---
+
+<span
+  class:list={["rubik-mark", `rubik-mark--${size}`]}
+  aria-hidden={decorative ? "true" : undefined}
+  role={decorative ? undefined : "img"}
+  aria-label={decorative ? undefined : "Rodrigo Rey"}
+>
+  {colors.map((color) => <span style={`--tile-color:${color}`} />)}
+</span>
+
+<style>
+  .rubik-mark {
+    display: grid;
+    flex: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid #2a2e37;
+    border-radius: 6px;
+    background: #050608;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  }
+
+  .rubik-mark--sm {
+    width: 28px;
+    height: 28px;
+  }
+
+  .rubik-mark--md {
+    width: 36px;
+    height: 36px;
+  }
+
+  .rubik-mark > span {
+    border-radius: 1px;
+    background: var(--tile-color);
+  }
+</style>

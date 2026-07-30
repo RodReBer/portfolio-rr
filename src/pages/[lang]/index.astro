@@ -1,0 +1,26 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import HomePage from "../../components/HomePage.astro";
+import Layout from "../../layouts/Layout.astro";
+import { LANGS, getSiteCopy, normalizeLang } from "../../data/site";
+
+export const prerender = true;
+
+export const getStaticPaths = (() =>
+  LANGS.map((lang) => ({ params: { lang } }))) satisfies GetStaticPaths;
+
+const lang = normalizeLang(Astro.currentLocale);
+const copy = getSiteCopy(lang);
+const alternateLang = lang === "es" ? "en" : "es";
+---
+
+<Layout
+  lang={lang}
+  title={copy.meta.title}
+  description={copy.meta.description}
+  canonicalPath={getRelativeLocaleUrl(lang)}
+  alternatePath={getRelativeLocaleUrl(alternateLang)}
+>
+  <HomePage lang={lang} />
+</Layout>

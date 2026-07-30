@@ -1,0 +1,183 @@
+---
+import type { Lang } from "../data/site";
+import { getProjects, getSiteCopy } from "../data/site";
+import AboutSection from "./AboutSection.astro";
+import Contact from "./Contact.astro";
+import CubeStage from "./CubeStage.astro";
+import ExperienceSection from "./ExperienceSection.astro";
+import ProjectGrid from "./ProjectGrid.astro";
+import SectionHeading from "./SectionHeading.astro";
+import GitHubIcon from "./icons/GithubFooter.astro";
+import LinkedInIcon from "./icons/LinkedIn.astro";
+import MailIcon from "./icons/Mail.astro";
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const copy = getSiteCopy(lang);
+const projects = getProjects(lang);
+const socials = [
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/rodrigorey2005/", icon: LinkedInIcon },
+  { label: "GitHub", href: "https://github.com/RodReBer", icon: GitHubIcon },
+  { label: "Email", href: "mailto:rodrigorey2005@gmail.com", icon: MailIcon },
+];
+---
+
+<main id="main-content" tabindex="-1" data-home-page>
+  <CubeStage lang={lang} copy={copy.cube} />
+
+  <section class="hero site-shell" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="eyebrow" style="--section-accent:var(--rubik-green)" data-hero-item>{copy.hero.eyebrow}</p>
+
+      <p class="hero-identity" data-hero-item>
+        {copy.hero.greeting} <strong>{copy.hero.name}</strong>
+      </p>
+
+      <h1 id="hero-title">{copy.hero.role}</h1>
+      <p class="hero-description">{copy.hero.description}</p>
+
+      <div class="hero-proof" data-hero-item>
+        <span><i class="proof-yellow"></i>{copy.hero.years}</span>
+        <span><i class="proof-blue"></i>Montevideo · Uruguay</span>
+      </div>
+
+      <div class="hero-actions" data-hero-item>
+        <a class="button-primary" href="#projects">
+          {copy.hero.viewProjects}<span aria-hidden="true">↓</span>
+        </a>
+        <a class="button-secondary" href="#contact">{copy.hero.contact}</a>
+      </div>
+
+      <nav class="hero-socials" aria-label={lang === "es" ? "Perfiles y contacto" : "Profiles and contact"} data-hero-item>
+        {socials.map((social) => (
+          <a aria-label={social.label} href={social.href} target={social.href.startsWith("http") ? "_blank" : undefined} rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}>
+            <social.icon class="size-4" /><span>{social.label}</span>
+          </a>
+        ))}
+      </nav>
+    </div>
+
+    <div class="hero-cube hero-cube-reserve" aria-hidden="true"></div>
+  </section>
+
+  <section id="projects" class="section-shell site-shell projects-section" style="--section-accent:var(--rubik-blue)">
+    <SectionHeading eyebrow={copy.projects.eyebrow} title={copy.projects.title} description={copy.projects.description} accent="blue" />
+    <ProjectGrid lang={lang} projects={projects} copy={copy.projects} />
+  </section>
+
+  <ExperienceSection copy={copy.experience} lang={lang} />
+  <AboutSection copy={copy.about} portraitAlt={copy.hero.portraitAlt} />
+
+  <section id="contact" class="section-shell site-shell contact-section" style="--section-accent:var(--rubik-yellow)">
+    <div class="contact-layout">
+      <div class="contact-intro">
+        <SectionHeading eyebrow={copy.contact.eyebrow} title={copy.contact.title} description={copy.contact.description} accent="yellow" />
+        <div class="availability-card rubik-panel" data-reveal>
+          <span class="availability-dot" aria-hidden="true"></span>
+          <div>
+            <strong>{copy.contact.availability}</strong>
+            <p>{copy.contact.responseTime}</p>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form-wrap rubik-panel" data-reveal>
+        <Contact lang={lang} copy={copy.contact} />
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Aparición suave de las secciones al hacer scroll. Cada elemento con
+  // [data-reveal] se oculta un poco y se muestra cuando entra en pantalla.
+  // Sin GSAP: un IntersectionObserver alcanza y es fácil de seguir.
+  function initReveals() {
+    const items = document.querySelectorAll<HTMLElement>("[data-home-page] [data-reveal]");
+    if (!items.length) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      items.forEach((element) => element.classList.add("is-revealed"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-revealed");
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px" },
+    );
+
+    items.forEach((element) => {
+      element.classList.add("reveal-armed");
+      observer.observe(element);
+    });
+  }
+
+  initReveals();
+  document.addEventListener("astro:page-load", initReveals);
+</script>
+
+<style>
+  .hero { position: relative; display: grid; min-height: 100svh; align-items: center; gap: 2rem; padding-block: 7.5rem 4rem; }
+  .hero-copy { min-width: 0; }
+  .hero-identity { width: fit-content; margin: 1.3rem 0 0; color: var(--color-muted); font-size: clamp(.9rem, 1.5vw, 1.05rem); }
+  .hero-identity strong { color: var(--color-ink); font-weight: 750; }
+  h1 { max-width: 13ch; margin: 1.35rem 0 0; font-size: clamp(3rem, 8.4vw, 6.9rem); font-weight: 790; letter-spacing: -.065em; line-height: .88; text-wrap: balance; }
+  .hero-description { max-width: 38rem; margin: 1.5rem 0 0; color: var(--color-muted); font-size: clamp(1.05rem, 2vw, 1.28rem); line-height: 1.65; text-wrap: pretty; }
+  .hero-proof { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.35rem; }
+  .hero-proof span { display: inline-flex; min-height: 2.25rem; align-items: center; gap: .5rem; border: 1px solid var(--color-border); border-radius: .42rem; padding: .48rem .65rem; color: #d7d9de; font-family: ui-monospace, monospace; font-size: .72rem; }
+  .hero-proof i { width: .55rem; height: .55rem; border-radius: 1px; }
+  .proof-yellow { background: var(--rubik-yellow); }
+  .proof-blue { background: var(--rubik-blue); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.6rem; }
+  .hero-socials { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1.2rem; }
+  .hero-socials a { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; gap: .45rem; border-radius: .45rem; padding: .55rem .65rem; color: var(--color-muted); font-size: .8rem; text-decoration: none; transition: color var(--motion-fast), background var(--motion-fast); }
+  .hero-socials a:hover { background: rgba(255,255,255,.045); color: var(--color-ink); }
+  .hero-cube-reserve { position: absolute; right: 0; bottom: 0; width: 1px; height: 1px; pointer-events: none; }
+  .projects-section { padding-top: 5rem; }
+  .contact-layout { display: grid; gap: 1.2rem; }
+  .contact-intro { display: flex; flex-direction: column; gap: 1.5rem; }
+  .availability-card { display: flex; align-items: flex-start; gap: .85rem; padding: 1rem; }
+  .availability-dot { flex: none; width: .85rem; height: .85rem; margin-top: .2rem; border: 3px solid #08090d; border-radius: 2px; background: var(--rubik-green); box-shadow: 0 0 0 1px var(--rubik-green); }
+  .availability-card strong { font-size: .9rem; }
+  .availability-card p { margin: .25rem 0 0; color: var(--color-muted); font-size: .78rem; }
+  .contact-form-wrap { padding: clamp(1.1rem, 4vw, 2rem); }
+  @media (min-width: 900px) {
+    .hero { grid-template-columns: minmax(0, 7fr) minmax(25rem, 5fr); gap: clamp(2rem, 5vw, 5.5rem); padding-top: 8.5rem; }
+    .hero-cube-reserve { position: static; width: auto; height: auto; min-width: 0; min-height: clamp(22rem, 54vh, 34rem); }
+    .contact-layout { grid-template-columns: minmax(0, .9fr) minmax(25rem, 1.1fr); align-items: start; gap: clamp(2rem, 7vw, 6rem); }
+    .contact-intro { position: sticky; top: 7rem; }
+  }
+  @media (max-width: 520px) {
+    .hero { gap: 2.4rem; padding-top: 6.8rem; }
+    h1 { font-size: clamp(2.85rem, 15vw, 4.1rem); }
+    .hero-actions a { flex: 1 1 9.5rem; }
+    .hero-socials span { display: none; }
+  }
+</style>
+
+<!-- Global: los [data-reveal] están en componentes hijos, así que no puede ser scoped. -->
+<style is:global>
+  [data-home-page] [data-reveal].reveal-armed {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  [data-home-page] [data-reveal].reveal-armed.is-revealed {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-home-page] [data-reveal].reveal-armed {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

@@ -1,72 +1,62 @@
 ---
-import GitHubIcon from "../components/icons/GithubFooter.astro";
-import YouTubeIcon from "../components/icons/YouTube.astro";
-import LinkedInIcon from "../components/icons/LinkedIn.astro";
+import GitHubIcon from "./icons/GithubFooter.astro";
+import LinkedInIcon from "./icons/LinkedIn.astro";
+import YouTubeIcon from "./icons/YouTube.astro";
+import { getSiteCopy, type Lang } from "../data/site";
 
+interface Props {
+  lang: Lang;
+  homePath: string;
+}
+
+const { lang, homePath } = Astro.props;
 const currentYear = new Date().getFullYear();
-
-const SOCIAL_LINKS = [
-  {
-    name: "GitHub",
-    url: "https://github.com/RodReBer",
-    icon: GitHubIcon,
-  },
-  {
-    name: "LinkedIn",
-    url: "https://www.linkedin.com/in/rodrigorey2005/",
-    icon: LinkedInIcon,
-  },
-  {
-    name: "YouTube",
-    url: "https://www.youtube.com/@rodrigorey9706/videos",
-    icon: YouTubeIcon,
-  },
+const copy = getSiteCopy(lang).footer;
+const homeLabel = lang === "es" ? "Inicio" : "Home";
+const socials = [
+  { name: "GitHub", url: "https://github.com/RodReBer", icon: GitHubIcon },
+  { name: "LinkedIn", url: "https://www.linkedin.com/in/rodrigorey2005/", icon: LinkedInIcon },
+  { name: "YouTube", url: "https://www.youtube.com/@rodrigorey9706/videos", icon: YouTubeIcon },
 ];
 ---
 
-<footer class="relative z-10 border-t border-white/5">
-  <div class="mx-auto max-w-6xl px-6 py-12">
-    <!-- Top Section -->
-    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
-      <!-- Logo & Tagline -->
-      <div class="flex flex-col items-center md:items-start gap-2">
-        <a href="/" class="text-2xl font-bold">
-          <span class="text-cyan-400">RR</span>
-          <span class="text-white">.</span>
+<footer class="site-footer">
+  <div class="site-shell footer-grid">
+    <div class="footer-brand">
+      <a class="footer-home" href={homePath} aria-label={`Rodrigo Rey — ${homeLabel}`}>
+        <span class="cube-footer-dock" data-cube-footer-dock aria-hidden="true"></span>
+      </a>
+      <div>
+        <strong>Rodrigo Rey</strong>
+        <p>{copy.tagline}</p>
+      </div>
+    </div>
+
+    <div class="social-links">
+      {socials.map((social) => (
+        <a href={social.url} target="_blank" rel="noopener noreferrer" aria-label={social.name}>
+          <social.icon class="size-5" />
         </a>
-        <p class="text-gray-500 text-sm" data-i18n="footer.tagline">
-          Building digital experiences
-        </p>
-      </div>
-
-      <!-- Social Links -->
-      <div class="flex items-center gap-4">
-        {
-          SOCIAL_LINKS.map((social) => (
-            <a
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="p-3 rounded-xl bg-white/5 text-gray-400 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all duration-300"
-              aria-label={social.name}
-            >
-              <social.icon class="w-5 h-5" />
-            </a>
-          ))
-        }
-      </div>
+      ))}
     </div>
 
-    <!-- Bottom Section -->
-    <div
-      class="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left"
-    >
-      <p class="text-gray-500 text-sm">
-        © {currentYear} Rodrigo Rey. <span data-i18n="footer.rights"
-          >All rights reserved.</span
-        >
-      </p>
-
-    </div>
+    <p class="copyright">© {currentYear} Rodrigo Rey. {copy.rights}</p>
   </div>
 </footer>
+
+<style>
+  .site-footer { position: relative; border-top: 4px solid var(--rubik-joint, #050609); padding-block: 2rem 2.5rem; box-shadow: inset 0 1px 0 var(--color-border); }
+  .footer-grid { display: grid; gap: 1.5rem; }
+  .footer-brand { display: flex; align-items: center; gap: 0.8rem; }
+  .footer-home { display: inline-grid; width: 3.25rem; height: 3.25rem; flex: none; place-items: center; border-radius: 0.45rem; }
+  .cube-footer-dock { display: block; width: 100%; height: 100%; pointer-events: none; }
+  .footer-brand strong { display: block; font-size: 0.95rem; }
+  .footer-brand p, .copyright { margin: 0.2rem 0 0; color: var(--color-muted); font-size: 0.8rem; }
+  .social-links { display: flex; gap: 0.5rem; }
+  .social-links a { display: inline-flex; width: 2.75rem; height: 2.75rem; align-items: center; justify-content: center; border: 1px solid var(--color-border); border-radius: 0.5rem; color: var(--color-muted); transition: color var(--motion-fast), border-color var(--motion-fast), transform var(--motion-fast); }
+  .social-links a:hover { border-color: var(--rubik-blue); color: var(--color-ink); transform: translateY(-2px); }
+  @media (min-width: 700px) {
+    .footer-grid { grid-template-columns: 1fr auto; align-items: center; }
+    .copyright { grid-column: 1 / -1; padding-top: 1.25rem; border-top: 1px solid var(--color-border); }
+  }
+</style>
