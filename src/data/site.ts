@@ -118,6 +118,7 @@ export interface SiteCopy {
     previous: string;
     next: string;
     imageAlt: string;
+    stack: string;
   };
   footer: {
     tagline: string;
@@ -129,6 +130,8 @@ export interface ProjectContent {
   title: string;
   summary: string;
   features: readonly string[];
+  /** Párrafo con el contexto y lo que hice. Opcional: si falta no se muestra. */
+  context?: string;
 }
 
 export interface ProjectDefinition {
@@ -139,6 +142,8 @@ export interface ProjectDefinition {
   website: string;
   brand: string;
   brandSecondary: string;
+  /** Tecnologías usadas (iguales en ambos idiomas). Opcional. */
+  stack?: readonly string[];
   content: Readonly<Record<Lang, ProjectContent>>;
 }
 
@@ -150,13 +155,14 @@ export interface LocalizedProject extends ProjectContent {
   website: string;
   brand: string;
   brandSecondary: string;
+  stack?: readonly string[];
   href: string;
 }
 
 export const SITE_COPY: Readonly<Record<Lang, SiteCopy>> = {
   es: {
     meta: {
-      title: "Rodrigo Rey — Desarrollador web y de software",
+      title: "Rodrigo Rey — Desarrollador web en Montevideo, Uruguay",
       description:
         "Portfolio de Rodrigo Rey, desarrollador web y de software con más de 4 años de experiencia creando aplicaciones digitales.",
     },
@@ -321,6 +327,7 @@ export const SITE_COPY: Readonly<Record<Lang, SiteCopy>> = {
       previous: "Proyecto anterior",
       next: "Proyecto siguiente",
       imageAlt: "Captura del proyecto",
+      stack: "Tecnologías",
     },
     footer: {
       tagline: "Creando experiencias digitales",
@@ -329,7 +336,7 @@ export const SITE_COPY: Readonly<Record<Lang, SiteCopy>> = {
   },
   en: {
     meta: {
-      title: "Rodrigo Rey — Web and software developer",
+      title: "Rodrigo Rey — Web developer in Montevideo, Uruguay",
       description:
         "Portfolio of Rodrigo Rey, a web and software developer with 4+ years of experience creating digital applications.",
     },
@@ -494,6 +501,7 @@ export const SITE_COPY: Readonly<Record<Lang, SiteCopy>> = {
       previous: "Previous project",
       next: "Next project",
       imageAlt: "Project screenshot",
+      stack: "Tech stack",
     },
     footer: {
       tagline: "Building digital experiences",
@@ -594,6 +602,15 @@ export const PROJECTS: readonly ProjectDefinition[] = [
     website: "https://crece600.uy",
     brand: "Crece",
     brandSecondary: "Robert Silva",
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Firebase",
+      "Framer Motion",
+      "Leaflet",
+      "Nodemailer",
+    ],
     content: {
       es: {
         title: "Crece 600",
@@ -603,7 +620,12 @@ export const PROJECTS: readonly ProjectDefinition[] = [
           "Recepción de propuestas de ley ciudadanas.",
           "Donaciones y adhesión al movimiento.",
           "Panel administrativo para publicar proyectos, archivos y contenido.",
+          "Agenda y línea de tiempo de eventos con fotos y videos.",
+          "Perfiles de representantes con su actividad legislativa.",
+          "Mapa de referentes por departamento.",
         ],
+        context:
+          "Sitio oficial del sector de Robert Silva en el Partido Colorado. Además del desarrollo y el panel de administración, me encargo del SEO técnico: sitemap que se actualiza solo con los eventos, artículos y perfiles; datos estructurados para Google; imágenes automáticas para compartir cada evento en WhatsApp; y medición de inscripciones, contactos y donaciones en Google Analytics con aviso de cookies.",
       },
       en: {
         title: "Crece 600",
@@ -613,7 +635,12 @@ export const PROJECTS: readonly ProjectDefinition[] = [
           "Citizen law proposal submissions.",
           "Donations and movement registration.",
           "Admin panel for publishing projects, files and content.",
+          "Event calendar and timeline with photos and videos.",
+          "Representative profiles with their legislative activity.",
+          "Map of local leaders by department.",
         ],
+        context:
+          "Official website of Robert Silva's faction within Uruguay's Colorado Party. Beyond the development and the admin panel, I handle the technical SEO: a sitemap that updates itself with events, articles and profiles; structured data for Google; auto-generated share images for every event on WhatsApp; and Google Analytics tracking of sign-ups, contact requests and donations, with a cookie consent banner.",
       },
     },
   },
@@ -661,6 +688,7 @@ export function getProjects(lang: Lang): LocalizedProject[] {
     website: project.website,
     brand: project.brand,
     brandSecondary: project.brandSecondary,
+    stack: project.stack,
     href: getProjectHref(lang, project.slug),
     ...project.content[lang],
   }));

@@ -22,24 +22,47 @@ const alternatePath = getRelativeLocaleUrl(alternateLang, `projects/${project.sl
 const pageTitle = `${project.title} — Rodrigo Rey`;
 const backHref = `${getRelativeLocaleUrl(lang)}#projects`;
 const site = Astro.site ?? new URL("https://rodrigorey.info");
+const pageUrl = new URL(canonicalPath, site).toString();
+const homeUrl = new URL(getRelativeLocaleUrl(lang), site).toString();
+// Tarjeta para compartir generada por `pnpm generate:og`.
+const shareImage = `/og/projects/${project.slug}-${lang}.png`;
+const author = {
+  "@type": "Person",
+  "@id": new URL("/#person", site).toString(),
+  name: "Rodrigo Rey",
+  url: homeUrl,
+};
 const structuredData = {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  name: project.title,
-  description: project.summary,
-  image: new URL(project.image, site).toString(),
-  url: new URL(canonicalPath, site).toString(),
-  inLanguage: lang,
-  about: {
-    "@type": "WebSite",
-    name: project.title,
-    url: project.website,
-  },
-  author: {
-    "@type": "Person",
-    name: "Rodrigo Rey",
-    url: new URL(getRelativeLocaleUrl(lang), site).toString(),
-  },
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": pageUrl,
+      name: pageTitle,
+      description: project.summary,
+      url: pageUrl,
+      inLanguage: lang === "es" ? "es-UY" : "en-US",
+      primaryImageOfPage: new URL(project.image, site).toString(),
+      isPartOf: { "@id": new URL("/#website", site).toString() },
+      mainEntity: {
+        "@type": "CreativeWork",
+        name: project.title,
+        description: project.context ?? project.summary,
+        url: project.website,
+        image: new URL(project.image, site).toString(),
+        creator: author,
+        ...(project.stack?.length ? { keywords: project.stack.join(", ") } : {}),
+      },
+      breadcrumb: {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Rodrigo Rey", item: homeUrl },
+          { "@type": "ListItem", position: 2, name: copy.projects.title, item: `${homeUrl}#projects` },
+          { "@type": "ListItem", position: 3, name: project.title, item: pageUrl },
+        ],
+      },
+    },
+  ],
 };
 ---
 
@@ -50,6 +73,7 @@ const structuredData = {
   canonicalPath={canonicalPath}
   alternatePath={alternatePath}
   pageType="article"
+  image={shareImage}
   structuredData={structuredData}
 >
   <main
@@ -114,6 +138,7 @@ const structuredData = {
           <p class="section-number" aria-hidden="true">01</p>
           <h2 id="overview-title">{copy.projectDetail.overview}</h2>
           <p class="project-summary">{project.summary}</p>
+          {project.context && <p class="project-context">{project.context}</p>}
         </section>
 
         <section aria-labelledby="features-title">
@@ -130,6 +155,18 @@ const structuredData = {
             }
           </ul>
         </section>
+
+        {
+          project.stack?.length ? (
+            <section aria-labelledby="stack-title" class="project-stack">
+              <p class="section-number" aria-hidden="true">03</p>
+              <h2 id="stack-title">{copy.projectDetail.stack}</h2>
+              <ul class="stack-list">
+                {project.stack.map((tech) => <li>{tech}</li>)}
+              </ul>
+            </section>
+          ) : null
+        }
       </div>
 
       {
@@ -366,6 +403,37 @@ const structuredData = {
     color: #c7c8ce;
     font-size: clamp(1.05rem, 2vw, 1.3rem);
     line-height: 1.7;
+  }
+
+  .project-context {
+    max-width: 45rem;
+    margin: 1.25rem 0 0;
+    color: #a9afba;
+    font-size: clamp(0.98rem, 1.6vw, 1.08rem);
+    line-height: 1.75;
+  }
+
+  .project-stack {
+    grid-column: 1 / -1;
+  }
+
+  .stack-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stack-list li {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid #32353e;
+    border-radius: 0.5rem;
+    background: #12141a;
+    color: #f6f3ea;
+    font-size: 0.92rem;
+    font-weight: 600;
   }
 
   .feature-list {
