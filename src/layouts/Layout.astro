@@ -2,6 +2,7 @@
 import { ClientRouter } from "astro:transitions";
 import { getRelativeLocaleUrl } from "astro:i18n";
 import Header from "../components/Header.astro";
+import { getSiteCopy } from "../data/site";
 import Footer from "../components/Footer.astro";
 import onestLatinUrl from "@fontsource-variable/onest/files/onest-latin-wght-normal.woff2?url";
 import "../styles/global.css";
@@ -35,14 +36,35 @@ const ogImage = new URL(image, site).toString();
 const homePath = getRelativeLocaleUrl(lang);
 const isHome = canonicalPath === homePath || canonicalPath === `/${lang}`;
 const fontFaceCss = `@font-face{font-family:'Onest Variable';font-style:normal;font-display:swap;font-weight:100 900;src:url('${onestLatinUrl}') format('woff2-variations')}`;
-const personSchema = {
-  "@context": "https://schema.org",
+const copy = getSiteCopy(lang);
+const personId = new URL("/#person", site).toString();
+const person = {
   "@type": "Person",
+  "@id": personId,
   name: "Rodrigo Rey",
   url: new URL(homePath, site).toString(),
+  image: new URL("/rodrigo-rey.jpg", site).toString(),
   jobTitle: lang === "es" ? "Desarrollador web y de software" : "Web and software developer",
+  description: copy.meta.description,
   address: { "@type": "PostalAddress", addressLocality: "Montevideo", addressCountry: "UY" },
+  knowsAbout: [...copy.about.primaryTechnologies, ...copy.about.moreTechnologies],
   sameAs: ["https://github.com/RodReBer", "https://www.linkedin.com/in/rodrigorey2005/"],
+};
+// Home: Person + WebSite. Las páginas de proyecto pasan su propio
+// structuredData y referencian a la persona por @id.
+const homeSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    person,
+    {
+      "@type": "WebSite",
+      "@id": new URL("/#website", site).toString(),
+      url: site.toString(),
+      name: "Rodrigo Rey",
+      inLanguage: lang === "es" ? "es-UY" : "en-US",
+      publisher: { "@id": personId },
+    },
+  ],
 };
 ---
 
@@ -75,7 +97,7 @@ const personSchema = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData ?? personSchema)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData ?? homeSchema).replace(/</g, "\\u003c")} />
     <ClientRouter />
     <title>{title}</title>
 
@@ -88,7 +110,10 @@ const personSchema = {
         script.src = "https://www.googletagmanager.com/gtag/js?id=G-KCD3X6GB71";
         document.head.appendChild(script);
         window.dataLayer = window.dataLayer || [];
-        window.gtag = (...args) => { window.dataLayer.push(args); };
+        // gtag.js sólo procesa objetos `arguments`: con (...args) se pushea un
+        // Array común y Analytics ignora los comandos (no registraba visitas).
+        // eslint-disable-next-line prefer-rest-params -- gtag.js exige `arguments`
+        window.gtag = function () { window.dataLayer.push(arguments); };
         window.gtag("js", new Date());
         window.gtag("config", "G-KCD3X6GB71");
       }
@@ -99,7 +124,7 @@ const personSchema = {
         window.setTimeout(() => {
           if ("requestIdleCallback" in window) window.requestIdleCallback(loadAnalytics, { timeout: 2000 });
           else loadAnalytics();
-        }, 8000);
+        }, 3000);
       }, { once: true });
     </script>
   </head>

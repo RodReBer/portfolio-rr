@@ -237,6 +237,112 @@ function createSvg(lang, fontBase64, portraitBase64) {
   `;
 }
 
+// ---------- Tarjetas por proyecto (/og/projects/<slug>-<lang>.png) ----------
+
+const PROJECT_COPY = {
+  es: { eyebrow: "PROYECTO", by: "Desarrollado por Rodrigo Rey" },
+  en: { eyebrow: "PROJECT", by: "Built by Rodrigo Rey" },
+};
+
+/** Corta un texto en líneas de ~maxChars sin partir palabras. */
+function wrap(text, maxChars, maxLines) {
+  const lines = [];
+  let current = "";
+  for (const word of text.split(/\s+/)) {
+    if ((current + " " + word).trim().length > maxChars && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = (current + " " + word).trim();
+    }
+  }
+  if (current) lines.push(current);
+  if (lines.length > maxLines) {
+    lines.length = maxLines;
+    lines[maxLines - 1] = lines[maxLines - 1].replace(/[\s,.;:]*\S*$/, "") + "…";
+  }
+  return lines;
+}
+
+function createProjectSvg(lang, project, fontBase64, screenshotBase64) {
+  const copy = PROJECT_COPY[lang];
+  const accent = project.accent;
+  const summary = wrap(project.summary, 34, 4);
+  const stack = (project.stack ?? []).slice(0, 4);
+  const titleSize = project.title.length > 18 ? 46 : 60;
+  const titleLines = wrap(project.title, project.title.length > 18 ? 20 : 16, 2);
+  const summaryY = 250 + (titleLines.length - 1) * (titleSize + 4);
+
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+      <defs>
+        <style>
+          @font-face {
+            font-family: "Onest";
+            src: url("data:font/woff2;base64,${fontBase64}") format("woff2");
+            font-weight: 100 900;
+          }
+          text { font-family: "Onest", "Segoe UI", sans-serif; }
+        </style>
+        <pattern id="grid" width="72" height="72" patternUnits="userSpaceOnUse">
+          <path d="M72 0H0V72" fill="none" stroke="#F6F3EA" stroke-opacity="0.035" stroke-width="1" />
+        </pattern>
+        <radialGradient id="accent-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="${accent}" stop-opacity="0.32" />
+          <stop offset="1" stop-color="${accent}" stop-opacity="0" />
+        </radialGradient>
+        <filter id="shot-shadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#000000" flood-opacity="0.6" />
+        </filter>
+        <clipPath id="shot-clip"><rect x="610" y="135" width="540" height="304" rx="14" /></clipPath>
+      </defs>
+
+      <rect width="1200" height="630" fill="${COLORS.canvas}" />
+      <rect width="1200" height="630" fill="url(#grid)" />
+      <ellipse cx="880" cy="290" rx="420" ry="320" fill="url(#accent-glow)" />
+
+      <g>
+        ${createSmallMark().replaceAll('x="', 'data-x="').replace(/data-x="(\d+)"/g, (_, x) => `x="${Number(x) - 4}"`)}
+      </g>
+      <text x="128" y="96" fill="${COLORS.ink}" font-size="22" font-weight="760">Rodrigo Rey</text>
+      <text x="128" y="120" fill="${COLORS.muted}" font-size="15" font-weight="560">rodrigorey.info</text>
+
+      <rect x="68" y="168" width="13" height="13" rx="2" fill="${accent}" stroke="#050608" stroke-width="3" />
+      <text x="94" y="180" fill="${COLORS.muted}" font-size="15" font-weight="720" letter-spacing="2.4">${copy.eyebrow}</text>
+
+      ${titleLines
+        .map(
+          (line, i) =>
+            `<text x="66" y="${236 + i * (titleSize + 4)}" fill="${COLORS.ink}" font-size="${titleSize}" font-weight="800" letter-spacing="-2">${escapeXml(line)}</text>`,
+        )
+        .join("")}
+
+      ${summary
+        .map(
+          (line, i) =>
+            `<text x="68" y="${summaryY + 52 + i * 31}" fill="${COLORS.muted}" font-size="23" font-weight="500">${escapeXml(line)}</text>`,
+        )
+        .join("")}
+
+      ${stack
+        .map((tech, i) => {
+          const widths = stack.map((t) => t.length * 10.5 + 30);
+          const x = 68 + widths.slice(0, i).reduce((a, b) => a + b + 10, 0);
+          return `<rect x="${x}" y="510" width="${widths[i]}" height="38" rx="8" fill="${COLORS.panel}" stroke="${COLORS.border}" stroke-width="2" />
+            <text x="${x + widths[i] / 2}" y="535" fill="${COLORS.ink}" font-size="17" font-weight="640" text-anchor="middle">${escapeXml(tech)}</text>`;
+        })
+        .join("")}
+
+      <g filter="url(#shot-shadow)">
+        <rect x="606" y="131" width="548" height="312" rx="17" fill="${accent}" />
+      </g>
+      <image href="data:image/jpeg;base64,${screenshotBase64}" x="610" y="135" width="540" height="304" preserveAspectRatio="xMidYMin slice" clip-path="url(#shot-clip)" />
+      <text x="1150" y="490" fill="${COLORS.muted}" font-size="17" font-weight="600" text-anchor="end">${escapeXml(copy.by)}</text>
+      <text x="1150" y="518" fill="${COLORS.ink}" font-size="19" font-weight="720" text-anchor="end">${escapeXml(project.website.replace(/^https?:\/\//, ""))}</text>
+    </svg>
+  `;
+}
+
 await mkdir(OUTPUT_DIRECTORY, { recursive: true });
 const [fontBuffer, portraitBuffer] = await Promise.all([
   readFile(FONT_PATH),
@@ -257,4 +363,24 @@ for (const lang of Object.keys(COPY)) {
   }
 
   console.log(`Generated ${path.relative(ROOT, outputPath)} (1200x630)`);
+}
+
+// Tarjetas de proyectos. site.ts es TypeScript sin imports: Node 22 lo
+// carga con --experimental-strip-types (ver script "generate:og").
+const { getProjects } = await import("../src/data/site.ts");
+const PROJECTS_DIRECTORY = path.join(OUTPUT_DIRECTORY, "projects");
+await mkdir(PROJECTS_DIRECTORY, { recursive: true });
+
+for (const lang of Object.keys(COPY)) {
+  for (const project of getProjects(lang)) {
+    const screenshot = await sharp(path.join(ROOT, "public", project.image))
+      .resize(1080, 608, { fit: "cover", position: "top" })
+      .jpeg({ quality: 82 })
+      .toBuffer();
+    const outputPath = path.join(PROJECTS_DIRECTORY, `${project.slug}-${lang}.png`);
+    await sharp(Buffer.from(createProjectSvg(lang, project, fontBase64, screenshot.toString("base64"))))
+      .png({ compressionLevel: 9, palette: true, quality: 90 })
+      .toFile(outputPath);
+    console.log(`Generated ${path.relative(ROOT, outputPath)} (1200x630)`);
+  }
 }
