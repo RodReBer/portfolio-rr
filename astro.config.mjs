@@ -6,6 +6,9 @@ import tailwindcss from "@tailwindcss/vite";
 // https://astro.build/config
 export default defineConfig({
   site: 'https://rodrigorey.info',
+  // Astro 7 cambió el default a 'jsx', que borra los espacios entre elementos
+  // inline (p. ej. los links del menú). `true` mantiene el HTML como en Astro 6.
+  compressHTML: true,
   i18n: {
     locales: ["es", "en"],
     defaultLocale: "es",
@@ -37,15 +40,24 @@ export default defineConfig({
   },
   security: {
     checkOrigin: true,
+    // El adaptador de Node sólo confía en las cabeceras Host / X-Forwarded-*
+    // (las que manda Traefik en Coolify) si el dominio está en esta lista; si no,
+    // las rutas SSR ven `http://localhost:3000` como URL de la petición.
+    allowedDomains: [{ protocol: "https", hostname: "rodrigorey.info" }],
   },
   vite: {
     plugins: [tailwindcss()],
     build: {
-      rollupOptions: {
+      // Vite 8 empaqueta con Rolldown: `rollupOptions` pasó a `rolldownOptions`
+      // y `manualChunks` quedó obsoleto en favor de `codeSplitting.groups`.
+      // three y gsap van en chunks propios para que se cacheen aparte.
+      rolldownOptions: {
         output: {
-          manualChunks(id) {
-            if (id.includes("node_modules/three")) return "three";
-            if (id.includes("node_modules/gsap")) return "gsap";
+          codeSplitting: {
+            groups: [
+              { name: "three", test: /node_modules[\\/]three[\\/]/ },
+              { name: "gsap", test: /node_modules[\\/]gsap[\\/]/ },
+            ],
           },
         },
       },
