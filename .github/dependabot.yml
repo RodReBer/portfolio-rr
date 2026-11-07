@@ -19,3 +19,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    ignore:
+      # Node sólo en versiones LTS (las pares). El salto de versión mayor
+      # (p. ej. 22 → 24) se hace a mano; las impares no tienen soporte largo.
+      - dependency-name: node
+        update-types: [version-update:semver-major]
