@@ -1,0 +1,21 @@
+# Dependabot abre PRs para actualizar dependencias. Las actualizaciones
+# menores y de parche llegan agrupadas en un solo PR por semana; las
+# mayores (que pueden romper algo) llegan de a una.
+# Docs: https://docs.github.com/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      menores:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
