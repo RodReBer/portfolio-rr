@@ -26,7 +26,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "@fontsource-variable/onest": "^5.0.2",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^6.4.6",
+    "astro": "^6.4.8",
     "gsap": "^3.12.4",
     "resend": "^4.5.2",
     "sharp": "^0.33.1",
