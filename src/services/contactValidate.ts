@@ -25,7 +25,9 @@ function hasControlChars(value: string, allowLineBreaks = false): boolean {
 
 export const contactSchema = z.object({
   name: z.string().trim().min(2).max(80).refine((v) => !hasControlChars(v)),
-  email: z.string().trim().min(3).max(254).email(),
+  // `z.string().email()` está obsoleto en Zod 4: se recorta primero y después
+  // se valida el formato con `z.email()`.
+  email: z.string().trim().min(3).max(254).pipe(z.email()),
   subject: z.string().trim().min(3).max(120).refine((v) => !hasControlChars(v)),
   message: z
     .string()
