@@ -30,6 +30,22 @@ function getResend(): Resend | undefined {
   return resend;
 }
 
+// Registro mínimo para poder diagnosticar los envíos fallidos: sólo la etapa, el
+// código y el estado HTTP del proveedor. Nunca datos del visitante, payloads ni claves.
+function logSendFailure(
+  stage: "config" | "notification" | "auto-reply",
+  reason: string,
+  statusCode?: number | null,
+): void {
+  console.error(
+    `[contact] fallo de envío: etapa=${stage} motivo=${reason} http=${statusCode ?? "-"}`,
+  );
+}
+
+function errorName(error: unknown): string {
+  return error instanceof Error ? error.name : "unknown";
+}
+
 function json(body: ContactResponse, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -103,6 +119,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const resend = getResend();
   if (!resend) {
+    logSendFailure("config", "missing_api_key");
     return json({ ok: false, code: "SEND_FAILED" }, 502);
   }
 
@@ -125,22 +142,36 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     if (notification.error) {
+      logSendFailure(
+        "notification",
+        notification.error.name,
+        notification.error.statusCode,
+      );
       return json({ ok: false, code: "SEND_FAILED" }, 502);
     }
-  } catch {
+  } catch (error) {
+    logSendFailure("notification", errorName(error));
     return json({ ok: false, code: "SEND_FAILED" }, 502);
   }
 
   // La respuesta de cortesía es best-effort: si falla, no cambia el éxito.
   try {
-    await resend.emails.send({
+    const autoReply = await resend.emails.send({
       from: "Rodrigo Rey <hola@rodrigorey.info>",
       to: [data.email],
       subject: `Re: ${data.subject}`,
       html: autoReplyEmail({ name: safe.name, subject: safe.subject, lang }),
     });
-  } catch {
-    // No exponer ni loguear payloads del proveedor, datos del destinatario ni tokens.
+
+    if (autoReply.error) {
+      logSendFailure(
+        "auto-reply",
+        autoReply.error.name,
+        autoReply.error.statusCode,
+      );
+    }
+  } catch (error) {
+    logSendFailure("auto-reply", errorName(error));
   }
 
   return json({ ok: true, code: "SENT" }, 200);
