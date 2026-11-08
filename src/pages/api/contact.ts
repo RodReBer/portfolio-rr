@@ -19,8 +19,16 @@ interface RecaptchaVerification {
   score?: number;
 }
 
-const resend = new Resend(RESEND_API_KEY);
 const RECAPTCHA_MIN_SCORE = 0.5;
+
+// El cliente se crea en el primer envío: `new Resend()` tira error si falta la
+// clave y, creado al importar el módulo, tumbaba toda la ruta (validación incluida).
+let resend: Resend | undefined;
+function getResend(): Resend | undefined {
+  if (!RESEND_API_KEY) return undefined;
+  resend ??= new Resend(RESEND_API_KEY);
+  return resend;
+}
 
 function json(body: ContactResponse, status: number): Response {
   return new Response(JSON.stringify(body), {
@@ -91,6 +99,11 @@ export const POST: APIRoute = async ({ request }) => {
   const token = formData.get("recaptcha_token");
   if (!(await verifyRecaptcha(typeof token === "string" ? token : ""))) {
     return json({ ok: false, code: "SPAM" }, 400);
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    return json({ ok: false, code: "SEND_FAILED" }, 502);
   }
 
   const lang = formData.get("lang") === "en" ? "en" : "es";
