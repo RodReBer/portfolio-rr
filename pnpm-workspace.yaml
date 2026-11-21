@@ -1,6 +1,10 @@
+# Un solo paquete: la raíz es el único miembro.
 packages:
   - '.'
 
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
+# pnpm 11 corta el install si hay dependencias con scripts de instalación sin
+# aprobar (ERR_PNPM_IGNORED_BUILDS). Estas dos los necesitan: esbuild (Astro y
+# Vite) y sharp (las imágenes de Astro).
+allowBuilds:
+  esbuild: true
+  sharp: true
