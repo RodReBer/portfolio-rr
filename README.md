@@ -4,7 +4,7 @@ Portfolio bilingüe construido con Astro 6, Tailwind CSS, GSAP y Three.js. La in
 
 ## Desarrollo
 
-Requiere Node.js 22.12 o posterior y pnpm.
+Requiere Node 24 y pnpm 11 (`npm install -g pnpm@11.4.0`; la versión exacta está en `package.json`).
 
 ```bash
 pnpm install
@@ -32,3 +32,7 @@ pnpm build
 Antes de la primera ejecución E2E, instalar los navegadores con `pnpm exec playwright install`.
 
 Las imágenes Open Graph se regeneran con `pnpm generate:og`.
+
+## Deploy
+
+Corre en Coolify, y se despliega solo al mergear a `main` si el CI pasó. Cómo está armado, las variables y cómo probar la imagen: [docs/deploy.md](docs/deploy.md).
