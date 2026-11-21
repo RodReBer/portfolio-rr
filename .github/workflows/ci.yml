@@ -1,0 +1,88 @@
+# CI del estándar de proyectos: en cada PR y en cada push a main se revisa el
+# código y se prueba la imagen; en main, si todo pasó, se le pide el deploy a
+# Coolify. Coolify ya no despliega solo: sólo llega a producción lo que pasó acá.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint, test y build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+
+  image:
+    name: Imagen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Construir la imagen
+        run: docker build -t app:ci .
+      - name: Arranca y su healthcheck da sano
+        run: |
+          docker run -d --name app --health-interval=5s app:ci
+          for _ in $(seq 1 36); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' app)
+            echo "healthcheck: $status"
+            if [ "$status" = healthy ]; then exit 0; fi
+            if [ "$status" = unhealthy ]; then break; fi
+            sleep 5
+          done
+          docker logs app
+          exit 1
+
+  deploy:
+    name: Deploy en Coolify
+    needs: [check, image]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - name: Pedir el deploy y esperar a que termine
+        env:
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+          COOLIFY_DEPLOY_URL: ${{ secrets.COOLIFY_DEPLOY_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "$COOLIFY_TOKEN" ] || [ -z "$COOLIFY_DEPLOY_URL" ]; then
+            echo "::error::Faltan los secrets COOLIFY_TOKEN o COOLIFY_DEPLOY_URL del repo"
+            exit 1
+          fi
+          base="${COOLIFY_DEPLOY_URL%%/api/v1/*}"
+          auth="Authorization: Bearer $COOLIFY_TOKEN"
+          deployment=$(curl -fsS -X POST -H "$auth" "$COOLIFY_DEPLOY_URL" | jq -r '.deployments[0].deployment_uuid')
+          echo "Deploy pedido: $deployment"
+          for _ in $(seq 1 120); do
+            status=$(curl -fsS -H "$auth" "$base/api/v1/deployments/$deployment" | jq -r '.status')
+            case "$status" in
+              finished) echo "Deploy terminado"; exit 0 ;;
+              failed|cancelled*) echo "::error::El deploy terminó con estado $status"; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::El deploy no terminó en 20 minutos"
+          exit 1
