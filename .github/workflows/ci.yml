@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -85,4 +85,23 @@ jobs:
             sleep 10
           done
           echo "::error::El deploy no terminó en 20 minutos"
+          exit 1
+
+      # Coolify puede dar el deploy por terminado y aun así el sitio no responder
+      # (el 21/11/2026 reina-reyes quedó en 502 con este job en verde): se pide la
+      # URL pública, como un visitante, y si no contesta el CI queda en rojo.
+      - name: El sitio publicado responde
+        env:
+          URL_PUBLICA: https://rodrigorey.info/api/health
+        run: |
+          for intento in $(seq 1 12); do
+            if curl -fsS --max-time 10 "$URL_PUBLICA"; then
+              echo
+              echo "Responde: $URL_PUBLICA"
+              exit 0
+            fi
+            echo "Intento $intento: todavía no responde"
+            sleep 10
+          done
+          echo "::error::$URL_PUBLICA no responde después del deploy"
           exit 1
