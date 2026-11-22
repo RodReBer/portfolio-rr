@@ -8,3 +8,9 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+
+# `@emnapi/core` y `@emnapi/runtime` están en devDependencies sin que el código
+# los use: las dos mitades de emnapi tienen que ser de la misma versión, y como
+# algunos paquetes de Astro aceptan la 2 beta, pnpm les daba el núcleo 1.x con la
+# runtime 2 beta y `astro check` se cortaba con "this.bridge.setLastError is not
+# a function". Al estar en la raíz, pnpm usa éstas. Se sacan cuando salga la 2.
