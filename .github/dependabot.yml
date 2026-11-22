@@ -1,14 +1,14 @@
-# Dependabot abre PRs para actualizar dependencias. Las actualizaciones
-# menores y de parche llegan agrupadas en un solo PR por semana; las
-# mayores (que pueden romper algo) llegan de a una.
+# Dependabot abre PRs para actualizar dependencias, una vez por mes: cada PR
+# corre el CI entero y gasta minutos de Actions. Las actualizaciones menores y
+# de parche llegan agrupadas en un solo PR; las mayores (que pueden romper algo)
+# llegan de a una.
 # Docs: https://docs.github.com/code-security/dependabot/working-with-dependabot/dependabot-options-reference
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     open-pull-requests-limit: 5
     groups:
       menores:
@@ -17,8 +17,7 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     ignore:
       # Node sólo en versiones LTS (las pares). El salto de versión mayor
       # (p. ej. 22 → 24) se hace a mano; las impares no tienen soporte largo.
@@ -28,8 +27,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     groups:
       actions:
         patterns: ["*"]
